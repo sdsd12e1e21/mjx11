@@ -69,12 +69,24 @@ class CSVRowInput(BaseModel):
             raise ValueError("document_id must be non-empty and have no surrounding whitespace")  # noqa: TRY003
         if not self.primary_key:
             raise ValueError("primary_key must be non-empty")  # noqa: TRY003
+        if not self.columns:
+            raise ValueError("columns must not be empty")  # noqa: TRY003
+        if any(not column or not column.strip() for column in self.columns):
+            raise ValueError("column names must be non-empty and non-blank")  # noqa: TRY003
+        if len(set(self.columns)) != len(self.columns):
+            raise ValueError("column names must be unique")  # noqa: TRY003
         if len(self.columns) != len(self.values):
             raise ValueError("columns and values must have the same length")  # noqa: TRY003
-        if self.primary_key not in self.columns:
-            raise ValueError("primary_key must exactly match a column name")  # noqa: TRY003
+        try:
+            key_index = self.columns.index(self.primary_key)
+        except ValueError:
+            raise ValueError("primary_key must exactly match a column name") from None
         if not self.primary_key_value.strip():
             raise ValueError("primary key value must not be blank")  # noqa: TRY003
+        if self.values[key_index] != self.primary_key_value:
+            raise ValueError("primary_key_value must equal the corresponding value")  # noqa: TRY003
+        # Enforce the identity length limit for directly constructed row inputs too.
+        csv_row_source_id(self.document_id, self.primary_key_value)
         return self
 
 
@@ -102,8 +114,18 @@ class CSVRowSource(Source):
             raise ValueError("name and source_id must match the CSV row identity")  # noqa: TRY003
         if len(self.columns) != len(self.values):
             raise ValueError("columns and values must have the same length")  # noqa: TRY003
-        if self.primary_key not in self.columns:
-            raise ValueError("primary_key must exactly match a column name")  # noqa: TRY003
+        if not self.columns:
+            raise ValueError("columns must not be empty")  # noqa: TRY003
+        if any(not column or not column.strip() for column in self.columns):
+            raise ValueError("column names must be non-empty and non-blank")  # noqa: TRY003
+        if len(set(self.columns)) != len(self.columns):
+            raise ValueError("column names must be unique")  # noqa: TRY003
+        try:
+            key_index = self.columns.index(self.primary_key)
+        except ValueError:
+            raise ValueError("primary_key must exactly match a column name") from None
+        if self.values[key_index] != self.primary_key_value:
+            raise ValueError("primary_key_value must equal the corresponding value")  # noqa: TRY003
         return self
 
 
@@ -114,6 +136,7 @@ def csv_row_source_id(document_id: str, primary_key_value: str) -> str:
         raise ValueError("document_id must be non-empty and have no surrounding whitespace")  # noqa: TRY003
     if not isinstance(primary_key_value, str) or not primary_key_value.strip():
         raise ValueError("primary_key_value must not be empty or blank")  # noqa: TRY003
+    # quote(..., safe="") still leaves RFC 3986 unreserved characters unchanged.
     source_id = f"csv:{quote(document_id, safe='')}:{quote(primary_key_value, safe='')}"
     if len(source_id) > 256:
         raise ValueError("CSV row source identity must not exceed 256 characters")  # noqa: TRY003
@@ -125,13 +148,15 @@ def parse_csv_document(value: CSVDocumentInput) -> tuple[CSVRowInput, ...]:
 
     if not isinstance(value, CSVDocumentInput):
         raise ValueError("value must be a CSVDocumentInput")  # noqa: TRY003
-    # Validate the identity components before parsing any records.
     if not value.document_id or value.document_id != value.document_id.strip():
         raise ValueError("document_id must be non-empty and have no surrounding whitespace")  # noqa: TRY003
     if not value.primary_key:
         raise ValueError("primary_key must be non-empty")  # noqa: TRY003
+    if not isinstance(value.content, bytes):
+        raise ValueError("content must be bytes")  # noqa: TRY003
 
     try:
+        # utf-8-sig accepts one UTF-8 BOM at the start while retaining strict UTF-8 decoding.
         text = value.content.decode("utf-8-sig", errors="strict")
         reader = csv.reader(
             io.StringIO(text, newline=""),
@@ -140,9 +165,8 @@ def parse_csv_document(value: CSVDocumentInput) -> tuple[CSVRowInput, ...]:
             doublequote=True,
             strict=True,
         )
-        records = iter(reader)
         try:
-            header = next(records)
+            header = next(reader)
         except StopIteration:
             raise ValueError("CSV document must contain a header") from None
 
@@ -157,23 +181,26 @@ def parse_csv_document(value: CSVDocumentInput) -> tuple[CSVRowInput, ...]:
         except ValueError:
             raise ValueError("primary_key must exactly match a CSV header field") from None
 
+        columns = tuple(header)
         parsed: list[CSVRowInput] = []
         seen_keys: set[str] = set()
-        columns = tuple(header)
-        for record in records:
-            # csv.reader represents an entirely blank physical line as [].
+
+        for record in reader:
+            # csv.reader returns [] only for a completely blank physical record.
             if record == []:
                 continue
             if len(record) != len(columns):
                 raise ValueError("CSV record width must match the header width")  # noqa: TRY003
+
             key_value = record[key_index]
             if not key_value.strip():
                 raise ValueError("CSV primary key values must not be blank")  # noqa: TRY003
             if key_value in seen_keys:
                 raise ValueError("CSV primary key values must be unique within a document")  # noqa: TRY003
-            seen_keys.add(key_value)
-            # Ensure even an overlong identity fails before any partial result escapes.
+
+            # Check identity size before appending, so invalid input never returns partial rows.
             csv_row_source_id(value.document_id, key_value)
+            seen_keys.add(key_value)
             parsed.append(
                 CSVRowInput(
                     document_id=value.document_id,
@@ -183,6 +210,8 @@ def parse_csv_document(value: CSVDocumentInput) -> tuple[CSVRowInput, ...]:
                     values=tuple(record),
                 )
             )
+
+        # No result escapes until the complete document has parsed and validated.
         return tuple(parsed)
     except (UnicodeDecodeError, csv.Error) as error:
         raise ValueError("invalid UTF-8 or malformed CSV document") from error
