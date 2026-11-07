@@ -255,6 +255,44 @@ async def test_multi_statement_evidence_survives_repeated_accounting_note_terms(
         assert {location[2] for location in locations}.issuperset({26, 27})
 
 
+async def test_mentions_in_notes_and_table_columns_do_not_replace_statement_headings(tmp_path):
+    notes = [
+        f"Accounting note {index}.\nLosses on derivatives in income statement\n"
+        "Cash flow hedges and operating income.\nAffected line item in Income Statement.\n"
+        + "EBITDA depreciation amortization restructuring costs income statement cash flows "
+        * 12
+        for index in range(30)
+    ]
+    statements = [
+        "Table of Contents\nConsolidated Statement of Income\nExample Company\nRevenue 300. Cost of sales 200. Profit 100.",
+        "Table of Contents\nConsolidated Statement of Cash Flows\nExample Company\nDepreciation 20. Amortization 5. Property 10.",
+    ]
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*notes, *statements])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        citations = await search_pdf_pages(
+            memory, "Calculate ACME EBITDA using the income statement and cash flow statement.", limit=20
+        )
+        locations = await _locations(memory, citations, stored)
+        assert {location[2] for location in locations}.issuperset({31, 32})
+
+
+async def test_business_overview_headings_are_not_matches_inside_risk_paragraphs(tmp_path):
+    noise = [
+        f"Risk note {index}. Our business operates internationally in geographic markets. "
+        + "Geographic risks affect our business, operations and international markets. " * 10
+        for index in range(25)
+    ]
+    overview = "Item 1. Business.\nOur Company\nWe have divisions in North America, Europe and Asia."
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*noise, overview])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(
+            memory, await search_pdf_pages(memory, "Which geographies does ACME operate in?", limit=20), stored
+        )
+        assert 26 in {location[2] for location in locations}
+
+
 @pytest.mark.parametrize("company", ["3M", "GM", "GE"])
 async def test_short_and_alphanumeric_company_names_target_the_right_report(tmp_path, company):
     config, scope_id, _, stored = await _prepare(

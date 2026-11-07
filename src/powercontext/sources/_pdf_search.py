@@ -214,6 +214,42 @@ class _Page:
     terms: Counter[str]
     sequence: str
     heading: str
+    sections: frozenset[str]
+
+
+def _sections(body: str) -> frozenset[str]:
+    """Classify actual early titles, rather than mentions in notes or columns."""
+    lines = [line.strip() for line in body[:1200].splitlines() if line.strip()]
+    lines = [line for line in lines if line.casefold() != "table of contents"]
+    sections: set[str] = set()
+    prefix = r"(?:(?:consolidat|combin|condens|unaudit|financial) )*"
+    patterns = {
+        "income": prefix + r"statement (?:incom|operation|earning)(?: loss)?(?: comprehensiv incom)?(?: unaudit)?",
+        "cash_flow": prefix + r"statement cash flow(?: unaudit)?",
+        "balance": prefix + r"(?:balance sheet|statement financial position)(?: unaudit)?",
+    }
+    for index in range(min(4, len(lines))):
+        for width in (1, 2, 3):
+            heading = " ".join(lines[index : index + width])
+            heading = re.split(r"(?<=[.!?])\s+", heading, maxsplit=1)[0]
+            normalized = " ".join(_tokens(heading))
+            strong = normalized.startswith(("consolidat ", "combin ", "condens "))
+            if index < 2 or strong:
+                sections.update(name for name, pattern in patterns.items() if re.fullmatch(pattern, normalized))
+        heading = re.sub(r"^item\s+\d+[a-z]?\s*[.:]?\s*", "", lines[index], flags=re.IGNORECASE)
+        heading = re.split(r"(?<=[.!?])\s+", heading, maxsplit=1)[0].strip(" .:")
+        if re.fullmatch(
+            r"(?:our )?(?:business|operations|company|divisions)|business overview|operating segments|reportable segments|geographic information",
+            heading,
+            flags=re.IGNORECASE,
+        ):
+            sections.add("business")
+    index_lines = sum(
+        bool(re.fullmatch(r"[A-Za-z][A-Za-z ,/'()\-\u2013\u2014]{2,80}\s+\d{1,3}", line)) for line in lines
+    )
+    if index_lines >= 6:
+        sections.discard("business")
+    return frozenset(sections)
 
 
 def _page(record: MemoryEntryRecord) -> _Page | None:
@@ -226,7 +262,13 @@ def _page(record: MemoryEntryRecord) -> _Page | None:
     if not terms:
         return None
     return _Page(
-        record, next(iter(identities)), document_id, Counter(terms), " ".join(terms), " ".join(_tokens(body[:500]))
+        record,
+        next(iter(identities)),
+        document_id,
+        Counter(terms),
+        " ".join(terms),
+        " ".join(_tokens(body[:500])),
+        _sections(body),
     )
 
 
@@ -271,27 +313,27 @@ def _rank_pages(pages: tuple[_Page, ...], question: str, prior: dict[str, float]
     return sorted(ranked, key=lambda item: (-item[0], item[1].source_id, item[1].record.entry.entry_id))
 
 
-def _evidence_facets(question: str) -> tuple[tuple[str, ...], ...]:
+def _evidence_facets(question: str) -> tuple[str, ...]:
     """Recognize general statement and business-overview evidence requests."""
     query = " ".join(_tokens(question))
     groups = []
-    for triggers, headings in (
+    for triggers, section in (
         (
             ("income statement", "statement income", "statement earnings", "profit loss", "p l", "ebitda"),
-            ("statement income", "statement operations", "statement earnings", "income statement", "profit loss"),
+            "income",
         ),
         (
             ("cash flow", "cashflow", "capex", "capital expenditure", "ebitda"),
-            ("statement cash flow", "cash flow statement"),
+            "cash_flow",
         ),
-        (("balance sheet", "financial position"), ("balance sheet", "statement financial position")),
+        (("balance sheet", "financial position"), "balance"),
         (
             ("geography", "geographic", "geographical", "country", "region"),
-            ("our operations", "our business", "business overview", "reportable segment", "geographic", "division"),
+            "business",
         ),
     ):
         if any(" ".join(_tokens(trigger)) in query for trigger in triggers):
-            groups.append(tuple(" ".join(_tokens(heading)) for heading in headings))
+            groups.append(section)
     return tuple(groups)
 
 
@@ -300,14 +342,13 @@ def _diversify(ranked: list[tuple[float, _Page]], question: str) -> list[tuple[f
     # even when repeated accounting-note terms dominate the lexical ranking.
     targeted = any(_document_match(page.document_id, question) for _, page in ranked)
     preferred = []
-    for aliases in _evidence_facets(question):
+    for section in _evidence_facets(question):
         matches = [
             (score, page)
             for score, page in ranked
-            if any(alias in page.heading for alias in aliases)
-            and (not targeted or _document_match(page.document_id, question))
+            if section in page.sections and (not targeted or _document_match(page.document_id, question))
         ]
-        preferred.extend(matches[:2])
+        preferred.extend((max(score, 1.0), page) for score, page in matches[:2])
     return [*preferred, *ranked]
 
 
