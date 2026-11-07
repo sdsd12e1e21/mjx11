@@ -73,6 +73,20 @@ async def test_minimax_records_retain_final_code_but_not_key_or_private_reasonin
         apply_record(tmp_path, {"editable_files": ["src/example.py"]}, result, tmp_path / "edits")
 
 
+async def test_quota_error_does_not_create_a_successful_model_record(tmp_path, monkeypatch):
+    monkeypatch.setenv("MINIMAX_API_KEY", "test-quota-key")
+    output = tmp_path / "record.json"
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(
+            402, json={"error": {"message": "insufficient balance (1008)", "code": "insufficient_balance"}}
+        )
+    )
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(ValueError, match="MiniMax HTTP 402"):
+            await develop({"task": {"editable_files": ["src/example.py"]}}, output, client=client)
+    assert not output.exists()
+
+
 async def test_powercontext_state_is_reused_in_another_python_process(tmp_path):
     state = TaskState(tmp_path / "state", "test-project")
     assert await state.load("task") is None

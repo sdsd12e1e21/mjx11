@@ -75,7 +75,7 @@ def _parse_final(content):
         raise ValueError("MiniMax final answer did not follow the requested JSON schema") from None
 
 
-async def develop(context: dict, record_path: Path, *, client: httpx.AsyncClient | None = None):
+def _development_request(context):
     key = os.environ.get("MINIMAX_API_KEY", "").strip()
     if not key or key == "replace-with-your-own-key":
         raise ValueError("MINIMAX_API_KEY is not configured; a real MiniMax call is required")
@@ -102,22 +102,28 @@ async def develop(context: dict, record_path: Path, *, client: httpx.AsyncClient
     if model.startswith("MiniMax-M3.1"):
         request["reasoning_effort"] = "low"
     started = datetime.now(UTC).isoformat()
-    own_client = client is None
-    transport = client or httpx.AsyncClient(timeout=180, follow_redirects=False)
-    try:
-        response = await transport.post(
-            base + "/chat/completions",
-            json=request,
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        )
-        if response.status_code != 200:
-            raise ValueError(f"MiniMax HTTP {response.status_code}; check account access, endpoint and quota")
-        body = response.json()
-    finally:
-        if own_client:
-            await transport.aclose()
+    return key, base, model, request, started
+
+
+def _response_body(response, key):
+    if response.status_code != 200:
+        try:
+            error_body = response.json()
+            details = error_body.get("error", error_body.get("base_resp", {}))
+            message = str(details.get("message", details.get("status_msg", ""))).replace(key, "[REDACTED]")[:300]
+            code = details.get("code", details.get("status_code"))
+        except (ValueError, AttributeError):
+            message, code = "", None
+        raise ValueError(f"MiniMax HTTP {response.status_code}, code={code}: {message}")
+    body = response.json()
+    return body
+
+
+def _record_response(context, record_path, key, base, model, request, started, body, own_client):
     if body.get("base_resp", {}).get("status_code", 0) != 0:
-        raise ValueError("MiniMax declined the request; check access and quota")
+        failure = body["base_resp"]
+        message = str(failure.get("status_msg", "")).replace(key, "[REDACTED]")[:300]
+        raise ValueError(f"MiniMax code={failure['status_code']}: {message}")
     choices = body.get("choices", [])
     if not choices:
         raise ValueError("MiniMax returned no choices")
@@ -150,6 +156,36 @@ async def develop(context: dict, record_path: Path, *, client: httpx.AsyncClient
     # from the raw response are never retained in the development record.
     write_json(record_path, record)
     return record
+
+
+async def develop(context: dict, record_path: Path, *, client: httpx.AsyncClient | None = None):
+    key, base, model, request, started = _development_request(context)
+    own_client = client is None
+    transport = client or httpx.AsyncClient(timeout=180, follow_redirects=False)
+    try:
+        response = await transport.post(
+            base + "/chat/completions",
+            json=request,
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        )
+        body = _response_body(response, key)
+    finally:
+        if own_client:
+            await transport.aclose()
+    return _record_response(context, record_path, key, base, model, request, started, body, own_client)
+
+
+def develop_sync(context: dict, record_path: Path):
+    """Standalone real HTTP entry for hosts without an available asyncio networking loop."""
+    key, base, model, request, started = _development_request(context)
+    with httpx.Client(timeout=180, follow_redirects=False) as client:
+        response = client.post(
+            base + "/chat/completions",
+            json=request,
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        )
+        body = _response_body(response, key)
+    return _record_response(context, record_path, key, base, model, request, started, body, True)
 
 
 def apply_record(project: Path, task: dict, record: dict, output_dir: Path, *, require_live=True):

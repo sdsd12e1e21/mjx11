@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-07T14:32:36.938301+00:00",
+  "command": [
+    "python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_regression.py",
+    "-v"
+  ],
+  "cwd": "project",
+  "exit_code": 0,
+  "source_manifest": "6c0b647979807e15d4a314ff0b07d33b7edd952c0c7e7324492c672b6c0dbf0e",
+  "source_versions": [
+    {
+      "path": "specs/orders.md",
+      "sha256": "5d7bfad805f6914abbfe0d4f4800aef13492b8ab38d997cb79f69d349eceb556"
+    },
+    {
+      "path": "src/order_service.py",
+      "sha256": "7e1347582568d86030e8d7d5ef2271a3a1575c2fe4ecb35b66ecc9ab35a1a9e7"
+    },
+    {
+      "path": "tests/test_regression.py",
+      "sha256": "108bd258989c3ce221f4384d45b0d81789fbd844a8ede5350b38bf1682657c63"
+    },
+    {
+      "path": "tests/test_target.py",
+      "sha256": "177480709d9d92b691379d9b2f74967dc34c3a818da495f03e9104911c7513c6"
+    }
+  ],
+  "output": "test_empty_result (test_regression.ExistingOrderBehaviorTests.test_empty_result) ... ok\ntest_input_records_are_not_mutated (test_regression.ExistingOrderBehaviorTests.test_input_records_are_not_mutated) ... ok\ntest_invalid_amount_bounds_are_rejected (test_regression.ExistingOrderBehaviorTests.test_invalid_amount_bounds_are_rejected) ... ok\ntest_no_filters_returns_all_in_id_order (test_regression.ExistingOrderBehaviorTests.test_no_filters_returns_all_in_id_order) ... ok\ntest_reversed_amount_range_is_rejected (test_regression.ExistingOrderBehaviorTests.test_reversed_amount_range_is_rejected) ... ok\ntest_status_filter_is_exact (test_regression.ExistingOrderBehaviorTests.test_status_filter_is_exact) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n",
+  "python": "3.12.14"
+}

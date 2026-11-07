@@ -1,0 +1,15 @@
+{
+  "schema": "minimax-sdd-failed-attempt-v1",
+  "attempt_date": "2026-11-07",
+  "provider": "MiniMax",
+  "endpoint": "https://api.minimax.cn/v1/chat/completions",
+  "requested_model": "MiniMax-M3.1-Flash",
+  "http_status": 402,
+  "provider_message": "insufficient balance (1008)",
+  "input_context": "model-input/context.json",
+  "source_manifest": "6c0b647979807e15d4a314ff0b07d33b7edd952c0c7e7324492c672b6c0dbf0e",
+  "generated_code_received": false,
+  "counts_as_successful_minimax_participation": false,
+  "next_action": "User chose to save progress without purchasing quota. Resume after quota is available.",
+  "credentials_retained": false
+}

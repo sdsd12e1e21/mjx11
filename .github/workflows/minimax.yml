@@ -1,4 +1,4 @@
-name: MiniMax SDD reproducible acceptance
+name: MiniMax SDD preparation and acceptance
 on:
   push:
     branches: [feat/minimax-sdd]
@@ -23,18 +23,48 @@ jobs:
       - name: Run module and native database tests
         working-directory: minimax
         run: |
-          docker compose run --rm sdd python -m pytest -p pytest_asyncio.plugin -q tests --basetemp=/runs/test-tmp
+          set -o pipefail
+          docker compose run --rm sdd python -m pytest -p pytest_asyncio.plugin -q tests --basetemp=/runs/test-tmp | tee .run/module-tests.txt
       - name: Produce reproducible records
         working-directory: minimax
         run: |
           docker compose run --rm sdd python -m minimax_sdd prepare --project /app/demo --run-dir /runs/development
           if test -f evidence/minimax-development.json; then
             docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/development --record /app/evidence/minimax-development.json
+          else
+            echo '::warning::Draft saved: real MiniMax record unavailable; six-check acceptance is NOT passed.'
+            echo 'MiniMax 额度不足，当前仅验证前置运行条件，尚不可提测。' >> "$GITHUB_STEP_SUMMARY"
           fi
           mkdir -p .run/artifact
           cp .run/development/*.json .run/artifact/
           cp -r .run/development/reports .run/artifact/
           cp -r .run/development/state/technology .run/artifact/
+          cp .run/module-tests.txt .run/artifact/
+          if test -d .run/development/changes; then
+            cp -r .run/development/changes .run/artifact/
+          fi
+          python3 - <<'PY'
+          import json, os, pathlib
+          verified = pathlib.Path('.run/development/verification.json').exists()
+          commands = [
+              "python -m pytest -p pytest_asyncio.plugin -q tests --basetemp=/runs/test-tmp",
+              "python -m minimax_sdd prepare --project /app/demo --run-dir /runs/development"
+          ]
+          if verified:
+              commands.append("python -m minimax_sdd verify --run-dir /runs/development --record /app/evidence/minimax-development.json")
+          record = {
+            "repository": os.environ["GITHUB_REPOSITORY"],
+            "commit": os.environ["GITHUB_SHA"],
+            "branch": os.environ["GITHUB_REF_NAME"],
+            "run_id": os.environ["GITHUB_RUN_ID"],
+            "run_url": "https://github.com/" + os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" + os.environ["GITHUB_RUN_ID"],
+            "commands": commands,
+            "all_required_checks_passed": verified,
+            "status": "verified" if verified else "draft-awaiting-minimax-quota",
+            "completed_job_steps_exit": 0
+          }
+          pathlib.Path(".run/artifact/execution.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
