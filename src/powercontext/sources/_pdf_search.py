@@ -143,6 +143,8 @@ _DOCUMENT_WORDS = frozenset([
     "holdings",
     "holding",
     "report",
+    "annualreport",
+    "earnings",
     "k",
     "q",
     "f",
@@ -219,16 +221,24 @@ class _Page:
 
 def _sections(body: str) -> frozenset[str]:
     """Classify actual early titles, rather than mentions in notes or columns."""
-    lines = [line.strip() for line in body[:1200].splitlines() if line.strip()]
-    lines = [line for line in lines if line.casefold() != "table of contents"]
+    lines = [line.strip() for line in body[:2000].splitlines() if line.strip()]
+    # PDF text runs can split a navigation header even inside a single word.
+    for index in range(min(6, len(lines))):
+        for width in (1, 2, 3, 4):
+            if re.sub(r"\W+", "", "".join(lines[index : index + width])).casefold() == "tableofcontents":
+                del lines[index : index + width]
+                break
+    lines = [line for line in lines if not re.fullmatch(r"\d{1,4}", line)]
     sections: set[str] = set()
     prefix = r"(?:(?:consolidat|combin|condens|unaudit|financial) )*"
     patterns = {
         "income": prefix + r"statement (?:incom|operation|earning)(?: loss)?(?: comprehensiv incom)?(?: unaudit)?",
         "cash_flow": prefix + r"statement cash flow(?: unaudit)?",
-        "balance": prefix + r"(?:balance sheet|statement financial position)(?: unaudit)?",
+        "balance": prefix + r"(?:balanc sheet|statement financial position)(?: unaudit)?",
     }
-    for index in range(min(4, len(lines))):
+    for index in range(min(8, len(lines))):
+        if any(len(line) > 110 or len(_WORDS.findall(line)) > 16 for line in lines[:index]):
+            break
         for width in (1, 2, 3):
             heading = " ".join(lines[index : index + width])
             heading = re.split(r"(?<=[.!?])\s+", heading, maxsplit=1)[0]
@@ -247,7 +257,7 @@ def _sections(body: str) -> frozenset[str]:
     index_lines = sum(
         bool(re.fullmatch(r"[A-Za-z][A-Za-z ,/'()\-\u2013\u2014]{2,80}\s+\d{1,3}", line)) for line in lines
     )
-    if index_lines >= 6:
+    if index_lines >= 6 or re.search(r"cross[\s-]*reference\s+index", body[:500], re.IGNORECASE):
         sections.discard("business")
     return frozenset(sections)
 
@@ -274,15 +284,45 @@ def _page(record: MemoryEntryRecord) -> _Page | None:
 
 def _document_match(document_id: str, question: str) -> bool:
     parts = re.split(r"[_\s-]+", document_id.casefold())
+    for index, part in enumerate(parts):
+        if index and re.fullmatch(r"(?:19|20)\d{2}(?:q[1-4])?", part):
+            parts = parts[:index]
+            break
     name = "".join(
         part
         for part in parts
-        if part not in _DOCUMENT_WORDS and not part.isdigit() and not re.fullmatch(r"10[kq]|20f", part)
+        if part not in _DOCUMENT_WORDS
+        and not part.isdigit()
+        and not re.fullmatch(r"(?:19|20)\d{2}q[1-4]|(?:10|8)[kq]|20f", part)
     )
     words = re.findall(r"[^\W_]+", question.casefold())
     if len(name) <= 3:
         return bool(name) and name in words
     return name in "".join(words)
+
+
+def _target_documents(pages: tuple[_Page, ...], question: str) -> frozenset[str]:
+    """Resolve report identity before ranking repeated comparative-year text."""
+    documents = {page.document_id for page in pages}
+    companies = {document for document in documents if _document_match(document, question)}
+    targeted = companies
+    years = set(re.findall(r"(?<!\d)(?:19|20)\d{2}(?!\d)", question))
+    for year in sorted(years, reverse=True):
+        dated = {
+            document
+            for document in (companies or documents)
+            if year in re.findall(r"(?<!\d)(?:19|20)\d{2}(?!\d)", document)
+        }
+        if dated:
+            targeted = dated
+            break
+    quarters = set(re.findall(r"(?<![a-z])q([1-4])(?!\d)", question, re.IGNORECASE))
+    quarterly = {
+        document
+        for document in (targeted or documents)
+        if quarters.intersection(re.findall(r"(?<![a-z])q([1-4])(?!\d)", document, re.IGNORECASE))
+    }
+    return frozenset(quarterly or targeted)
 
 
 def _rank_pages(pages: tuple[_Page, ...], question: str, prior: dict[str, float]) -> list[tuple[float, _Page]]:
@@ -292,7 +332,7 @@ def _rank_pages(pages: tuple[_Page, ...], question: str, prior: dict[str, float]
     average_length = sum(sum(page.terms.values()) for page in pages) / len(pages)
     raw_terms = _tokens(question)
     phrases = {f"{left} {right}" for left, right in pairwise(raw_terms) if not left.isdigit() and not right.isdigit()}
-    targeted = any(_document_match(page.document_id, question) for page in pages)
+    targeted = _target_documents(pages, question)
     ranked = []
     for page in pages:
         normalization = 1.2 * (0.6 + 0.4 * sum(page.terms.values()) / max(average_length, 1))
@@ -307,10 +347,18 @@ def _rank_pages(pages: tuple[_Page, ...], question: str, prior: dict[str, float]
             if phrase in page.heading:
                 score += 0.15 * sum(idf.get(term, 0) for term in phrase.split())
         if targeted:
-            score *= 2.5 if _document_match(page.document_id, question) else 0.3
+            score *= 2.5 if page.document_id in targeted else 0.3
         score += prior.get(page.record.entry.entry_id, 0) * 0.1
         ranked.append((score, page))
-    return sorted(ranked, key=lambda item: (-item[0], item[1].source_id, item[1].record.entry.entry_id))
+    return sorted(
+        ranked,
+        key=lambda item: (
+            bool(targeted) and item[1].document_id not in targeted,
+            -item[0],
+            item[1].source_id,
+            item[1].record.entry.entry_id,
+        ),
+    )
 
 
 def _evidence_facets(question: str) -> tuple[str, ...]:
@@ -319,14 +367,37 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
     groups = []
     for triggers, section in (
         (
-            ("income statement", "statement income", "statement earnings", "profit loss", "p l", "ebitda"),
+            (
+                "income statement",
+                "statement income",
+                "statement earnings",
+                "profit loss",
+                "p l",
+                "ebitda",
+                "operating income",
+                "net income",
+                "net sales",
+                "revenue",
+                "gross profit",
+            ),
             "income",
         ),
         (
             ("cash flow", "cashflow", "capex", "capital expenditure", "ebitda"),
             "cash_flow",
         ),
-        (("balance sheet", "financial position"), "balance"),
+        (
+            (
+                "balance sheet",
+                "financial position",
+                "total assets",
+                "total liabilities",
+                "current ratio",
+                "working capital",
+                "shareholders equity",
+            ),
+            "balance",
+        ),
         (
             ("geography", "geographic", "geographical", "country", "region"),
             "business",
@@ -340,13 +411,13 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
 def _diversify(ranked: list[tuple[float, _Page]], question: str) -> list[tuple[float, _Page]]:
     # Multi-statement questions need evidence from each requested statement,
     # even when repeated accounting-note terms dominate the lexical ranking.
-    targeted = any(_document_match(page.document_id, question) for _, page in ranked)
+    targeted = _target_documents(tuple(page for _, page in ranked), question)
     preferred = []
     for section in _evidence_facets(question):
         matches = [
             (score, page)
             for score, page in ranked
-            if section in page.sections and (not targeted or _document_match(page.document_id, question))
+            if section in page.sections and (not targeted or page.document_id in targeted)
         ]
         preferred.extend((max(score, 1.0), page) for score, page in matches[:2])
     return [*preferred, *ranked]

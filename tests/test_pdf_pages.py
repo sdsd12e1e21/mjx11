@@ -293,6 +293,63 @@ async def test_business_overview_headings_are_not_matches_inside_risk_paragraphs
         assert 26 in {location[2] for location in locations}
 
 
+@pytest.mark.parametrize(
+    "title,question",
+    [
+        ("Consolidated Balance Sheets", "What are ACME total assets and liabilities in the balance sheet?"),
+        ("Consolidated Statement of Income", "What is ACME operating income in its income statement?"),
+        ("Consolidated Statement of Cash Flows", "What is ACME depreciation in its cash flow statement?"),
+    ],
+)
+async def test_split_navigation_headers_and_page_numbers_do_not_hide_statements(tmp_path, title, question):
+    noise = [
+        "ACME Company\nAccounting note. "
+        + "operating income depreciation total assets liabilities balance sheet income statement cash flow statement "
+        * 20
+    ] * 25
+    statement = f"T\nable of\nContents\n117\nACME Company and Subsidiaries\n{title}\nYear ended 2024\nAmount 120."
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*noise, statement])])
+    async with open_builtin_runtime(config) as runtime:
+        locations = await _locations(
+            runtime.memory.for_scope(scope_id),
+            await search_pdf_pages(runtime.memory.for_scope(scope_id), question, limit=20),
+            stored,
+        )
+        assert 26 in {location[2] for location in locations}
+
+
+async def test_requested_report_year_is_not_displaced_by_other_annual_reports(tmp_path):
+    distracting = [
+        "Consolidated Statements of Income\nACME Company\nComparative periods 2021 2020\n"
+        + "Operating income revenue expenses profit cost of sales earnings statement " * 20
+    ] * 25
+    target = "Consolidated Statements of Income\nYear ended 2021\nNet sales 300. Earnings 120."
+    config, scope_id, _, stored = await _prepare(
+        tmp_path, [("ACME_2022_10K", distracting), ("ACME_2021_10K", [target])]
+    )
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(
+            memory, await search_pdf_pages(memory, "What was ACME operating income in FY2021?", limit=20), stored
+        )
+        assert ("ACME_2021_10K", 1) in {(location[0], location[2]) for location in locations}
+
+
+async def test_quarterly_report_identity_is_preserved_with_same_year_reports(tmp_path):
+    noise = [
+        "Consolidated Statements of Income\nACME Company\nComparative periods 2024 Q2\n"
+        + "Operating income revenue expenses profit cost of sales earnings statement " * 20
+    ] * 25
+    target = "Consolidated Statements of Income\nYear 2024 Q2\nNet sales 300. Earnings 120."
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024Q3_10Q", noise), ("ACME_2024Q2_10Q", [target])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(
+            memory, await search_pdf_pages(memory, "What was ACME operating income in FY2024 Q2?", limit=20), stored
+        )
+        assert locations[0][0] == "ACME_2024Q2_10Q"
+
+
 @pytest.mark.parametrize("company", ["3M", "GM", "GE"])
 async def test_short_and_alphanumeric_company_names_target_the_right_report(tmp_path, company):
     config, scope_id, _, stored = await _prepare(
