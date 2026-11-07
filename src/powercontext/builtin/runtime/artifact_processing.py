@@ -117,6 +117,7 @@ class ArtifactProcessingBinding:
     # Only automatic admission is filtered; already accepted requests retain
     # their own Worker authorization and domain completion semantics.
     automatic_scope_filter: Callable[[AsyncConnection, tuple[str, ...]], Awaitable[frozenset[str]]] | None = None
+    automatic_count_scope_filter: Callable[[AsyncConnection, tuple[str, ...]], Awaitable[frozenset[str]]] | None = None
 
     def __post_init__(self) -> None:
         if not self.binding_name or self.binding_name != self.binding_name.strip():
@@ -400,6 +401,8 @@ class _FamilyState:
     notification_at_start: int = 0
     discovery_pending: bool = True
     next_schedule_at: float | None = None
+    count_after: int = 0
+    next_count_at: float = 0.0
     next_discovery_at: float = 0.0
     automatic_next: bool = False
     overflow_not_before: float = 0.0
@@ -656,6 +659,42 @@ class ArtifactProcessingSupervisor:
         else:
             await self._discover_requested(state)
             await self._discover_automatic(state)
+        await self._discover_count(state)
+
+    async def _discover_count(self, state: _FamilyState) -> None:
+        """Admit count-ready input without changing time scans or accepted work."""
+        binding = state.binding
+        qualify = binding.automatic_count_scope_filter
+        capacity = self._fresh_capacity(state)
+        if qualify is None or capacity <= 0 or asyncio.get_running_loop().time() < state.next_count_at:
+            return
+        admitted = []
+        page_size = min(capacity, _DISCOVERY_PAGE_SIZE)
+        async with self._database.transaction() as connection:
+            await self._leases.require_fence(connection, self._require_current_fence())
+            rows = await self._intents.scan(
+                connection, binding.binding_name, after_sequence=state.count_after, limit=page_size, dirty_only=True
+            )
+            candidates = []
+            for row in rows:
+                if row.scope_id in state.queued or row.scope_id in state.running or row.scope_id in state.retries:
+                    continue
+                current = await self._intents.load(connection, row.scope_id, binding.binding_name, for_update=True)
+                if current is not None and current.requested_generation == current.handled_generation:
+                    candidates.append(row.scope_id)
+            ready = await qualify(connection, tuple(candidates))
+            for scope in candidates:
+                if scope in ready:
+                    await self._intents.request(connection, scope, binding.binding_name)
+                    admitted.append(scope)
+        # A rolled-back page never publishes a RAM frontier or ready item.
+        full_page = len(rows) == page_size
+        state.count_after = rows[-1].pending_sequence if full_page else 0
+        state.next_count_at = asyncio.get_running_loop().time() + (
+            _DISCOVERY_PAGE_DELAY_SECONDS if full_page else self._tick
+        )
+        for scope in admitted:
+            self._enqueue(state, scope)
 
     async def _discover_requested(self, state: _FamilyState) -> None:
         capacity = self._fresh_capacity(state)
@@ -1058,6 +1097,8 @@ class ArtifactProcessingSupervisor:
             state.overflow_not_before = 0.0
             state.retries.clear()
             state.requested_after = state.scan_after = state.scan_generation = 0
+            state.count_after = 0
+            state.next_count_at = 0.0
             state.scan_in_progress = False
             state.discovery_pending = True
 
@@ -1093,6 +1134,8 @@ class ArtifactProcessingSupervisor:
                 continue
             if state.next_schedule_at is not None:
                 deadlines.append(state.next_schedule_at)
+            if state.binding.automatic_count_scope_filter is not None:
+                deadlines.append(max(state.next_count_at, state.next_discovery_at))
             if state.discovery_pending or state.scan_in_progress or not state.reconcile_complete or state.degraded:
                 deadlines.append(max(now, state.next_discovery_at))
         return None if not deadlines else max(0.001, min(deadlines) - now)
