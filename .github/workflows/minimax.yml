@@ -1,0 +1,44 @@
+name: MiniMax SDD reproducible acceptance
+on:
+  push:
+    branches: [feat/minimax-sdd]
+    paths: ['minimax/**', '.github/workflows/minimax.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build locked Linux environment
+        working-directory: minimax
+        run: |
+          mkdir -p .run
+          chmod 777 .run
+          docker compose build
+      - name: Run module and native database tests
+        working-directory: minimax
+        run: |
+          docker compose run --rm sdd python -m pytest -p pytest_asyncio.plugin -q tests --basetemp=/runs/test-tmp
+      - name: Produce reproducible records
+        working-directory: minimax
+        run: |
+          docker compose run --rm sdd python -m minimax_sdd prepare --project /app/demo --run-dir /runs/development
+          if test -f evidence/minimax-development.json; then
+            docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/development --record /app/evidence/minimax-development.json
+          fi
+          mkdir -p .run/artifact
+          cp .run/development/*.json .run/artifact/
+          cp -r .run/development/reports .run/artifact/
+          cp -r .run/development/state/technology .run/artifact/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: minimax-acceptance-${{ github.sha }}
+          path: minimax/.run/artifact/
+          if-no-files-found: warn
+          retention-days: 30

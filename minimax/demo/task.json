@@ -1,0 +1,18 @@
+{
+  "task_id": "orders-inclusive-amount-range",
+  "title": "修复订单金额筛选的闭区间边界",
+  "description": "select_orders 的最小和最大金额必须包含相等边界；组合状态过滤时仍正确；相等的上下界能查询该金额的订单，包括金额为 0 的订单。",
+  "query": "orders amount range inclusive boundaries",
+  "preserve": ["状态过滤保持不变", "返回结果按订单 ID 排序", "输入记录不可被修改", "非法金额区间继续报错"],
+  "editable_files": ["src/order_service.py"],
+  "baseline_files": {"src/order_service.py": "baseline/src/order_service.py"},
+  "spec_update": {
+    "path": "specs/orders.md",
+    "append": "\n## ORD-UPDATE: Reimport verification\n金额上下界相等时不能重复返回同一订单，零金额订单仍可命中。\n",
+    "marker": "ORD-UPDATE"
+  },
+  "expected_sources": ["specs/orders.md", "src/order_service.py", "tests/test_target.py", "tests/test_regression.py"],
+  "target_tests": ["-m", "unittest", "discover", "-s", "tests", "-p", "test_target.py", "-v"],
+  "regression_tests": ["-m", "unittest", "discover", "-s", "tests", "-p", "test_regression.py", "-v"]
+}
+

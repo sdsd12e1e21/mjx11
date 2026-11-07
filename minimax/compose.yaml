@@ -1,0 +1,29 @@
+services:
+  sdd:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: minimax-sdd-context:2026
+    user: "0"
+    network_mode: none
+    cpus: 1
+    mem_limit: 2g
+    pids_limit: 512
+    cap_drop: [ALL]
+    cap_add: [NET_ADMIN, SETUID, SETGID]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+      PYTHONHASHSEED: "0"
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+        read_only: true
+      - type: bind
+        source: ./.run
+        target: /runs
