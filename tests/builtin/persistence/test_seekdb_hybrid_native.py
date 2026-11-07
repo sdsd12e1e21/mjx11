@@ -63,12 +63,19 @@ def _identities(result):
     return tuple((hit.memory_ref, hit.entry_id, hit.entry_version_id, hit.text, hit.matched_by) for hit in result.hits)
 
 
-async def test_native_384_dimensional_hybrid_matches_two_statement_retrieval(tmp_path):
-    statements = []
-
+def _candidate_recorder(statements):
     def record(_connection, _cursor, statement, parameters, _context, _many):
         if "AGAINST" in statement.upper() and "l2_distance" in statement.lower():
             statements.append((statement, parameters))
+
+    return record
+
+
+async def test_native_384_dimensional_hybrid_matches_two_statement_retrieval(tmp_path):
+    statements = []
+    tag_statements = []
+    record = _candidate_recorder(statements)
+    record_tag = _candidate_recorder(tag_statements)
 
     model = _Embedding()
     latencies = []
@@ -144,14 +151,24 @@ async def test_native_384_dimensional_hybrid_matches_two_statement_retrieval(tmp
                     assert hit.text == originals[hit.entry_id].text
                     assert hit.entry_version_id == originals[hit.entry_id].entry_version_id
                     assert hit.matched_by
-            target = next(iter(originals.values()))
+            target = next(entry for entry in originals.values() if entry.text.startswith("topic0 "))
             tagged_target = MemoryEntryTagTarget(artifact_id=head.artifact_id, entry_id=target.entry_id)
             tags = await contexts.records.get_tags(scope, tagged_target)
-            await contexts.records.replace_tags(scope, tagged_target, ("selected",), expected_etag=tags.etag)
-            tagged = await memory.search(
-                "topic0", memories=(head,), mode="hybrid", limit=10, tag_filter=TagFilter(tags=("selected",))
-            )
-            assert all(hit.entry_id == target.entry_id for hit in tagged.hits)
+            await contexts.records.replace_tags(scope, tagged_target, ("selected", "reviewed"), expected_etag=tags.etag)
+            for tag_filter in (
+                TagFilter(tags=("selected", "reviewed"), match="all"),
+                TagFilter(tags=("selected", "missing"), match="any"),
+            ):
+                event.listen(Engine, "before_cursor_execute", record_tag)
+                before = len(tag_statements)
+                try:
+                    tagged = await memory.search(
+                        "topic0", memories=(head,), mode="hybrid", limit=10, tag_filter=tag_filter
+                    )
+                finally:
+                    event.remove(Engine, "before_cursor_execute", record_tag)
+                assert len(tag_statements) - before == 1
+                assert [hit.entry_id for hit in tagged.hits] == [target.entry_id]
         statement, parameters = statements[0]
         async with contexts.database.transaction() as connection:
             plan = "\n".join(
@@ -159,15 +176,25 @@ async def test_native_384_dimensional_hybrid_matches_two_statement_retrieval(tmp
             )
         assert "TEXT RETRIEVAL SCAN" in plan
         assert "VECTOR INDEX" in plan
+        tag_statement, tag_parameters = tag_statements[0]
+        async with contexts.database.transaction() as connection:
+            tag_plan = "\n".join(
+                str(row[0])
+                for row in (await connection.exec_driver_sql("EXPLAIN " + tag_statement, tag_parameters)).all()
+            )
+        assert "TEXT RETRIEVAL SCAN" in tag_plan
+        assert "VECTOR INDEX" in tag_plan
     summary = {
         "queries": matches,
         "candidate_statements": len(statements),
         "exact_baseline_matches": matches,
         "mean_recall_at_10": statistics.mean(recalls),
         "p50_latency_ms": statistics.median(latencies),
+        "tagged_candidate_statements": len(tag_statements),
     }
     assert summary["mean_recall_at_10"] >= 0.95
     assert summary["p50_latency_ms"] <= 500
     report = Path(os.environ.get("POWERCONTEXT_NATIVE_REPORT_DIR", tmp_path))
     (report / "native-summary.json").write_text(json.dumps(summary), encoding="utf-8")
     (report / "native-explain.txt").write_text(plan, encoding="utf-8")
+    (report / "native-tagged-explain.txt").write_text(tag_plan, encoding="utf-8")

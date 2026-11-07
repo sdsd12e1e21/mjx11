@@ -44,3 +44,15 @@ powercontext capabilities
 The result reports the enabled search modes. Without an embedding profile, SQLite full-text search remains available.
 
 For timeouts, batch size, storage settings, and exact defaults, see [Configuration](../operate/configuration.md).
+
+## Embedded seekdb hybrid candidates
+
+With an embedding profile configured, the embedded seekdb backend retrieves full-text and vector candidates in one
+native SQL statement for `hybrid` search. Each channel applies Scope, Memory artifact, optional tag filters, and its
+candidate limit in the database. The shared admission and reciprocal-rank fusion stages then process the two channels.
+FTS-only and vector-only requests retain their existing strategies.
+
+References use the validated current Memory head. Unchanged active projections can retain an older stored
+`head_revision`; this does not exclude them from search. Body revisions and eligibility changes continue to update
+the existing projections transactionally. This optimization reduces candidate-query round trips; it does not remove
+head validation, embedding completeness checks, or exact body reads.

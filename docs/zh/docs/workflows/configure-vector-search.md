@@ -50,3 +50,13 @@ Source → flush → entry → vector search 验收命令见[启用 Memory 提�
 并确认旧 citation 没有变化。不要仅修改 profile ID 或 dimension 来绕过已有向量与模型不匹配的错误。
 
 timeout、batch size、storage 设置和准确默认值见[配置](../operate/configuration.md)。
+
+## 嵌入式 seekdb 的混合候选查询
+
+配置 embedding profile 后，嵌入式 seekdb 的 `hybrid` 搜索用一条原生 SQL 获取全文和向量两路候选。
+每路候选均在数据库内应用 Scope、Memory artifact、可选的标签过滤和候选数量上限，随后沿用共享的准入与
+倒数排名融合流程。仅全文和仅向量请求继续使用原有策略。
+
+引用使用已经校验的当前 Memory head。未修改的活跃条目投影可以保留旧 `head_revision`，不会因此退出检索。
+正文修订和使用资格变化继续通过现有事务更新投影。此优化减少候选查询的往返次数，不会省略当前 head 校验、
+embedding 完整性检查或精确正文读取。
