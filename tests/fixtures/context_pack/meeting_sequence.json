@@ -1,0 +1,69 @@
+{
+  "source": {
+    "repository": "https://github.com/Yale-LILY/QMSum",
+    "revision": "83d7768c1f2b4dfeb091385d3dc7e239b8e5bb7e",
+    "file": "data/ALL/test/ES2004a.json",
+    "sha256": "911e56db0d8482f1e730bae0a8fcf0ab0095c94abb000ba0516e975fa6e48b31",
+    "license": "MIT"
+  },
+  "rounds": 40,
+  "initial_turns": 8,
+  "append_rounds": [
+    10,
+    20,
+    30
+  ],
+  "queries": [
+    "remote",
+    "controls",
+    "design",
+    "programme"
+  ],
+  "max_bytes": 8000,
+  "turns": [
+    {
+      "turn_index": 14,
+      "text": "Project Manager: Um I'm Sarah , the Project Manager and this is our first meeting , surprisingly enough . Okay , this is our agenda , um {vocalsound} we will do some stuff , get to know each other a bit better to feel more comfortable with each other . Um then we'll go do tool training , talk about the project plan , discuss our own ideas and everything um and we've got twenty five minutes to do that , as far as I can understand . Now , we're developing a remote control which you probably already know . Um , we want it to be original , something that's uh {disfmarker} people haven't thought of , that's not out in the shops , um , trendy , appealing to a wide market , but you know , not a hunk of metal , and user-friendly , grannies to kids , maybe even pooches should be able to use it . Okay , um , first is the functional design , um this is where we all go off and do our individual work , um what needs need to be fulfilled by the product , um what effects the product has to have and how it's actually going to do that . Um , conceptual design , what we're thinking , how it's gonna go and then the detailed design , how we're actually gonna put it into practice and make it work ."
+    },
+    {
+      "turn_index": 184,
+      "text": "Project Manager: Okay . What are your experiences with remote controls ? I mean I've got {disfmarker} we got um {disfmarker} we had three videos , a T_V_ and a sort of amp thing all set up"
+    },
+    {
+      "turn_index": 186,
+      "text": "Project Manager: so we got one of the universal remote controls , um that you programme each of your things into ,"
+    },
+    {
+      "turn_index": 195,
+      "text": "Project Manager: but that was quite good , the fact that you could {disfmarker} You didn't have six remote controls sitting in front of you ."
+    },
+    {
+      "turn_index": 203,
+      "text": "Marketing: My experience has only been being given the remote control with the object I buy , not doing any tampering with it and programming , using it to programme T_V_ and uh uh videos and things . But basically on , off , volume up and down , channel one , two , th that basic functions ,"
+    },
+    {
+      "turn_index": 225,
+      "text": "Marketing: I wonder if incorporating that into the design of a remote control might be useful ,"
+    },
+    {
+      "turn_index": 237,
+      "text": "Marketing: Mm-hmm . Mm-hmm . Can he programme his remote control or is it basic with that too ?"
+    },
+    {
+      "turn_index": 268,
+      "text": "Marketing: {vocalsound} Yeah . Mm-hmm . Mm . The other thing is , just ch chucking into mobile phone f design features again , it could have a flip top remote control so that when you flip over the top , your screen is {disfmarker} you can have a bigger screen in the the flip over ."
+    },
+    {
+      "turn_index": 309,
+      "text": "Project Manager: it would probably . I mean there's Sky remote controls and everything . They're kind of moulded and look a bit different , and the Telewest remote controls are silver plastic , which looks a bit smarter ,"
+    },
+    {
+      "turn_index": 310,
+      "text": "Marketing: Right ."
+    },
+    {
+      "turn_index": 311,
+      "text": "Project Manager: so yeah I guess that's stuff we can think about ."
+    }
+  ]
+}
