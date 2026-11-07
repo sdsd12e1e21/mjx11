@@ -1,0 +1,15 @@
+{
+  "name": "stepfun-edge-knowledge", "version": "1.0.0", "private": true, "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"tsx watch server/index.ts\" \"vite --host 127.0.0.1\"",
+    "build": "tsc --noEmit && vite build",
+    "start": "tsx server/index.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "test:db": "tsx scripts/check-db.ts",
+    "models:manifest": "node scripts/model-manifest.mjs",
+    "db:up": "docker compose up -d --wait && tsx scripts/init-db.ts"
+  },
+  "dependencies": {"@huggingface/transformers": "4.3.2", "express": "5.1.0", "seekdb": "1.4.0"},
+  "devDependencies": {"@types/express": "5.0.3", "@types/node": "24.10.0", "concurrently": "9.2.5", "tsx": "4.20.6", "typescript": "5.9.3", "vite": "7.3.7"},
+  "overrides": {"adm-zip": "0.6.1"}
+}
