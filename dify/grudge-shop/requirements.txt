@@ -1,0 +1,1 @@
+powercontext[cli,server] @ git+https://github.com/oceanbase/powercontext.git@ed8902b234c4111b6f54e66694806430e25be3a9
