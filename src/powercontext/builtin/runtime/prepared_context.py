@@ -28,6 +28,12 @@ from powercontext.builtin.artifacts.memory.models import MemoryCitation, MemoryH
 from powercontext.builtin.artifacts.profile.models import Profile
 from powercontext.builtin.artifacts.topic_memory import TopicMemory, TopicMemorySearchHit
 from powercontext.builtin.runtime.errors import PreparedContextInvariantError
+from powercontext.builtin.runtime.evidence_selection import (
+    EvidenceCandidate,
+    PreparedEvidenceFragment,
+    render_evidence,
+    select_evidence,
+)
 from powercontext.builtin.runtime.models import PrepareContextRequest, PreparedContext
 from powercontext.builtin.runtime.prepared_code import (
     CodeEvidenceRef,
@@ -100,12 +106,14 @@ class PreparedContextBuild:
     **not** a field here: ``ScopedContextApplication._prepare`` returns ``build.context`` and
     discards the rest, so such a field would have no production observer. The trace is
     delivered through the Runtime's optional ``RecallEffortSink`` instead.
+    ``fragments`` is populated only by the opt-in literal evidence selector.
     """
 
     context: PreparedContext
     origins: tuple[PreparedContextOrigin, ...]
     omissions: PreparedContextOmissions = PreparedContextOmissions()
     code_origins: tuple[CodeEvidenceRef, ...] = ()
+    fragments: tuple[PreparedEvidenceFragment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -211,6 +219,8 @@ class PreparedContextBuilder:
         profile_candidates: Sequence[PreparedProfileCandidate] = (),
         code_candidates: Sequence[PreparedCodeCandidate] = (),
     ) -> PreparedContextBuild:
+        if request.evidence_selection:
+            return self._build_evidence(request, current_scope_id, memory_candidates)
         if request.include_code:
 
             def historical(history_request: PrepareContextRequest, entries: int) -> PreparedContextBuild:
@@ -256,6 +266,46 @@ class PreparedContextBuilder:
             omissions=omissions,
         )
 
+    def _build_evidence(
+        self,
+        request: PrepareContextRequest,
+        current_scope_id: str | None,
+        memory_candidates: Sequence[PreparedMemoryCandidates],
+    ) -> PreparedContextBuild:
+        if sum(len(group.hits) for group in memory_candidates) > self.memory_candidate_limit:
+            raise PreparedContextInvariantError("memory-candidate-limit")
+        candidates: list[EvidenceCandidate] = []
+        seen: set[tuple[str, str, int, str, str]] = set()
+        for group in memory_candidates:
+            if group.memory_ref is not None and group.memory_ref.family != "memory":
+                raise PreparedContextInvariantError("memory-family-mismatch")
+            scope_id = group.scope_id or current_scope_id
+            if group.hits and not scope_id:
+                raise PreparedContextInvariantError("memory-scope-missing")
+            for entry in self._memory_entries(group.memory_ref, group.hits, scope_id=scope_id):
+                if not isinstance(entry.origin, MemoryEntryAddress):
+                    raise PreparedContextInvariantError("memory-scope-missing")
+                address = entry.origin
+                identity = (
+                    address.memory.scope_id,
+                    address.memory.artifact.artifact_id,
+                    address.memory.artifact.revision,
+                    address.entry_id,
+                    address.entry_version_id,
+                )
+                if identity not in seen:
+                    candidates.append(EvidenceCandidate(address, entry.content))
+                    seen.add(identity)
+        fragments = select_evidence(request.query, request.max_bytes, candidates)
+        if not fragments:
+            return PreparedContextBuild(context=self.empty(), origins=())
+        content = render_evidence(fragments)
+        return PreparedContextBuild(
+            context=PreparedContext(status="ready", content=content, content_bytes=len(content.encode("utf-8"))),
+            origins=tuple(fragment.address for fragment in fragments),
+            fragments=fragments,
+        )
+
     def probe_budget(
         self,
         *,
@@ -276,6 +326,16 @@ class PreparedContextBuilder:
         the same inputs as :meth:`build_scopes_result` are guaranteed to yield the same
         counters because both go through :meth:`_select_entries`.
         """
+
+        if request.evidence_selection:
+            build = self._build_evidence(request, current_scope_id, memory_candidates)
+            return RecallBudgetView(
+                max_bytes=request.max_bytes,
+                delivered_items=len(build.fragments),
+                truncated_items=0,
+                dropped_items=0,
+                unused_bytes=request.max_bytes - build.context.content_bytes,
+            )
 
         content, origins, omissions = self._select_entries(
             request=request,
@@ -475,7 +535,7 @@ class PreparedContextBuilder:
                 entry_version_id=hit.entry_version_id,
             )
             origin: PreparedContextOrigin = citation
-            rendered_citation = citation.model_dump(mode="json")
+            rendered_citation: dict[str, object] = citation.model_dump(mode="json")
             if scope_id is not None:
                 memory = ArtifactAddress(scope_id=scope_id, artifact=hit.memory_ref)
                 origin = MemoryEntryAddress(
@@ -520,7 +580,7 @@ class PreparedContextBuilder:
             if hit.snippet is not None:
                 content["snippet"] = hit.snippet
             origin: PreparedContextOrigin = hit.artifact_ref
-            citation = {"artifact_ref": hit.artifact_ref.model_dump(mode="json")}
+            citation: dict[str, object] = {"artifact_ref": hit.artifact_ref.model_dump(mode="json")}
             body = json.dumps(content, ensure_ascii=False, separators=(",", ":"))
             if scope_id is not None:
                 origin = ArtifactAddress(scope_id=scope_id, artifact=hit.artifact_ref)

@@ -30,6 +30,27 @@ remaining distinct terms, with a minimum of two matches; one- or two-term querie
 prepared context share this rule, including when the optional recall gate relaxes the threshold. Stored text and
 vector queries are unchanged, and matching words alone do not establish semantic relevance.
 
+## Select literal evidence for a query
+
+The in-process Runtime offers opt-in evidence selection. It is disabled by default. When enabled, it selects
+query-relevant sentences and neighboring evidence from recalled Memory only. It does not include Code, Topic Memory,
+Experience, or Profile, or call a model to rewrite the evidence.
+
+```python
+from powercontext.builtin.runtime import PrepareContextRequest
+
+prepared = await runtime.context.for_scope(scope_id).prepare(
+    PrepareContextRequest(query="At what temperature is the sensor calibrated?", max_bytes=1400, evidence_selection=True)
+)
+```
+
+The byte budget covers the complete UTF-8 output, including the trust policy, envelope, JSON, citations, and text.
+The result is `empty` when no relevant fragment fits. Direct users of `PreparedContextBuilder.build_scopes_result()`
+also receive `fragments`: literal text, half-open Python character offsets `[start, end)`, and an exact scoped Memory
+address. `origins` corresponds to these fragments in the same order. The Memory revision, entry ID, and entry version
+ID resolve the original historical text. Selection uses lexical relevance and local context; it does not verify the
+truth of the evidence. This option is exposed by the in-process Runtime interface.
+
 ## Automatic context and extraction
 
 Recall hooks ask the Server for bounded PreparedContext. An `empty` result is valid when no relevant information is

@@ -25,6 +25,25 @@ FTS 的候选检索和准入使用相同的查询词。查询归一化会排除�
 直接搜索和上下文准备使用相同规则，可选的 recall gate 放宽门槛时也如此。存储文本和向量查询保持不变，
 词语重合本身不能证明语义相关。
 
+## 按查询选择原文证据
+
+进程内 Runtime 支持可选的原文片段选择。默认关闭；开启后只使用已召回的 Memory，按查询选择句子及相邻证据，
+不装入 Code、Topic Memory、Experience 或 Profile，也不调用模型改写正文。
+
+```python
+from powercontext.builtin.runtime import PrepareContextRequest
+
+prepared = await runtime.context.for_scope(scope_id).prepare(
+    PrepareContextRequest(query="传感器在什么温度校准？", max_bytes=1400, evidence_selection=True)
+)
+```
+
+`max_bytes` 包括完整 UTF-8 输出中的信任声明、envelope、JSON、引用和正文。没有可用或可装入的片段时返回 `empty`。
+直接使用 `PreparedContextBuilder.build_scopes_result()` 时，结果的 `fragments` 提供原文的半开 Python 字符区间
+`[start, end)`、字面文本及包含 Scope 的精确 Memory 地址；`origins` 按相同顺序逐项对应。
+可以用地址中的 Memory revision、entry ID 和 entry version ID 回查历史原文。选择规则基于词项及局部上下文，
+不是对事实的语义验证。此开关属于进程内 Runtime 接口。
+
 ## 自动上下文与提取
 
 召回 Hook 向 Server 请求有大小上限的 PreparedContext。没有相关信息时返回 `empty` 是正常结果。
