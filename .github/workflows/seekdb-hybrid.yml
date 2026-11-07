@@ -1,0 +1,46 @@
+name: seekdb native hybrid
+
+on:
+  push:
+    branches: [feat/seekdb-single-sql]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build the frozen Linux self-test environment
+        run: |
+          if ! docker compose -f competition/compose.yaml build selftest > "$RUNNER_TEMP/seekdb-build.log" 2>&1; then
+            cat "$RUNNER_TEMP/seekdb-build.log"
+            python3 -c 'import os,pathlib; text=pathlib.Path(os.environ["RUNNER_TEMP"],"seekdb-build.log").read_text()[-6000:]; print("::error title=seekdb build::"+text.replace("%","%25").replace("\n","%0A").replace("\r","%0D"))'
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/seekdb-build.log"
+      - name: Run native seekdb checks under the published resource limits
+        id: native
+        run: |
+          mkdir -p "$RUNNER_TEMP/seekdb-reports"
+          chmod 777 "$RUNNER_TEMP/seekdb-reports"
+          docker compose -f competition/compose.yaml run --rm \
+            -v "$PWD/tests:/candidate-tests:ro" \
+            -v "$RUNNER_TEMP/seekdb-reports:/reports" \
+            -e POWERCONTEXT_NATIVE_REPORT_DIR=/reports \
+            selftest python -m pytest -q -c /selftest/pytest.ini --confcutdir=/selftest \
+            --junitxml=/reports/native.xml --basetemp=/tmp/seekdb-native \
+            /selftest/challenges/retrieval-02-hybrid-search/acceptance \
+            /candidate-tests/builtin/persistence/test_seekdb_hybrid_native.py
+          echo "result=$(cat "$RUNNER_TEMP/seekdb-reports/native-summary.json")" >> "$GITHUB_OUTPUT"
+      - name: 'Native results: ${{ steps.native.outputs.result }}'
+        run: 'true'
+      - name: Report native failures
+        if: failure()
+        run: python3 .github/scripts/report_pytest_failures.py "$RUNNER_TEMP/seekdb-reports/native.xml"
