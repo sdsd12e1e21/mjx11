@@ -1,6 +1,6 @@
 # MiniMax：规有所依——SDD 上下文管理系统
 
-**当前为保存进度版本，暂不可提测。** 真实 MiniMax 请求返回 `HTTP 402 — insufficient balance (1008)`。上下文模块、运行环境、样例、说明及真实 seekdb / PowerContext 前置验证已交付；真实模型改码、修改后快照、最终六项验收尚未完成。详见 `STATUS.md`。下面的 `verify` 命令是额度可用、生成真实开发记录后的完整流程，当前缺少该记录时会明确失败。
+已交付真实 MiniMax 开发记录、修改前后快照、代码差异，以及从空状态运行的完整验收入口。验收结果和提交材料逐项对应见 `STATUS.md`；原始记录见 `evidence/`。
 
 此目录独立交付上下文模块、MiniMax 接入、订单业务样例、测试和验收记录。基于官方 `2026-competition-ecosystem` 分支，工程资料由真实嵌入式 seekdb 保存与查询，任务进度由 PowerContext 1.2.0 Memory SDK 保存和恢复。
 
@@ -21,7 +21,7 @@ docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/demo --
 
 `prepare` 创建隔离业务副本，从交付的 `demo/baseline/` 恢复未实现的功能，初始化空数据库，执行修改前测试，并输出真实数据库查询构建的 `.run/demo/context.json`。目标测试预期退出 1、包含三项断言失败；原有回归测试退出 0。命令本身在成功确认这些前置条件后退出 0。
 
-取得真实开发记录后，`verify` 重放记录的最终代码，校验输入来源和文件 SHA-256，执行同一组测试，保存进度，再启动独立 Python 进程恢复进度；最后修改规格、重新导入并确认新规格进入上下文。全部成功才输出 `all_required_checks_passed: true`。该重放无需再次调用模型，符合题面“不要求模型重新生成完全相同补丁”的验收方式。当前因余额不足，尚未取得可重放记录。
+`verify` 重放已交付真实 MiniMax 记录的最终代码，校验输入来源和文件 SHA-256，执行同一组测试，保存进度，再启动独立 Python 进程恢复进度；最后修改规格、重新导入并确认新规格进入上下文。全部成功才输出 `all_required_checks_passed: true`。该重放无需再次调用模型，符合题面“不要求模型重新生成完全相同补丁”的验收方式。真实调用由 M Plan 订阅 Key 完成；交付记录含请求上下文、响应标识和最终代码，不含认证信息或私有思维链。
 
 查看输出与状态：
 
@@ -43,7 +43,7 @@ docker compose run --rm sdd python -m minimax_sdd reset --run-dir /runs/demo
 
 ## 新的真实 MiniMax 调用
 
-`minimax/.env.example` 只包含占位配置，程序不自动加载它。将 `MINIMAX_API_KEY` 设置在当前进程环境中；不要提交真实凭据。中国区默认 `MINIMAX_BASE_URL=https://api.minimax.cn/v1`、`MINIMAX_MODEL=MiniMax-M3.1-Flash`；其他官方地区可显式配置相应端点。调用可能产生正常模型用量。
+`minimax/.env.example` 只包含占位配置，程序不自动加载它。将 `MINIMAX_API_KEY` 设置在当前进程环境中；不要提交真实凭据。M Plan 使用“套餐管理”中的订阅 Key，按量计费使用“API Key”页的 Key，两者不可互换；仅有 M Plan 订阅而钱包为零时，按量 Key 会返回余额不足。见[官方前置准备](https://platform.minimax.cn/docs/guides/quickstart-preparation)。中国区默认 `MINIMAX_BASE_URL=https://api.minimax.cn/v1`、`MINIMAX_MODEL=MiniMax-M3.1-Flash`；其他官方地区可显式配置相应端点。调用可能产生正常模型用量。
 
 Linux 主机 Python 3.12 可安装并调用：
 
@@ -52,8 +52,8 @@ python3.12 -m venv .venv
 . .venv/bin/activate
 python -m pip install -r requirements-linux.lock
 python -m pip install --no-deps -e .
-python -m minimax_sdd develop --context .run/demo/context.json --record .run/demo/new-minimax-development.json
-docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/demo --record /runs/demo/new-minimax-development.json
+python -m minimax_sdd develop --context .run/demo/context.json --record .run/new-minimax-development.json
+docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/demo --record /runs/new-minimax-development.json
 ```
 
 先对新的空运行目录执行 `prepare` 再调用；不要在已完成的目录重复应用补丁。API Key 通过进程环境读取，只发送至允许的官方 HTTPS 端点。开发记录只保存请求上下文、最终代码、响应标识、时间和用量，不保存 Authorization、真实凭据或模型私有思维链。容器验收测试会去除模型及 GitHub 凭据。
@@ -71,9 +71,9 @@ Python 接口：`ContextModule(state_dir, project_id).ingest(project)`、`.build
 | 完整源码与接入 | `src/minimax_sdd/`、`demo/src/`、`pyproject.toml`、`requirements-linux.lock`、`docker/`、`compose.yaml` |
 | 运行说明 | 本文、`.env.example` |
 | 验证样例与重置 | `DEMO.md`、`demo/task.json`、`demo/specs/`、`demo/data/` |
-| 修改前后代码与差异 | 原始实现 `demo/baseline/` 已交付；修改后代码和差异待真实 MiniMax 调用成功后生成 |
+| 修改前后代码与差异 | `demo/baseline/`、`demo/src/`、`evidence/development/` |
 | 新增功能和原有回归测试 | `demo/tests/test_target.py`、`demo/tests/test_regression.py`、`tests/` |
-| 实际调用、数据库、状态复用记录 | `evidence/` 含真实失败原因、前置数据库及状态记录；成功改码记录待补 |
+| 实际调用、数据库、状态复用记录 | `evidence/minimax-development.json`、`evidence/model-input/`、`evidence/verification/` |
 | 一页技术说明、来源 | `TECHNICAL.md`、`NOTICE.md` |
 
 ## 限制

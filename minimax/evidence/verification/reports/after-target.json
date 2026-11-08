@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-08T00:17:07.222538+00:00",
+  "command": [
+    "python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_target.py",
+    "-v"
+  ],
+  "cwd": "project",
+  "exit_code": 0,
+  "source_manifest": "ed822708c6e97e330e16432d05efebb85a00d73a7ef43e988ba3e25443d86f46",
+  "source_versions": [
+    {
+      "path": "specs/orders.md",
+      "sha256": "5d7bfad805f6914abbfe0d4f4800aef13492b8ab38d997cb79f69d349eceb556"
+    },
+    {
+      "path": "src/order_service.py",
+      "sha256": "292f5bed8024726f626681d5f946c854b85f4aa283b88c9447e5c919cad7a72e"
+    },
+    {
+      "path": "tests/test_regression.py",
+      "sha256": "108bd258989c3ce221f4384d45b0d81789fbd844a8ede5350b38bf1682657c63"
+    },
+    {
+      "path": "tests/test_target.py",
+      "sha256": "177480709d9d92b691379d9b2f74967dc34c3a818da495f03e9104911c7513c6"
+    }
+  ],
+  "output": "test_both_amount_boundaries_are_inclusive (test_target.InclusiveAmountRangeTests.test_both_amount_boundaries_are_inclusive) ... ok\ntest_equal_amount_bounds_with_status_filter (test_target.InclusiveAmountRangeTests.test_equal_amount_bounds_with_status_filter) ... ok\ntest_zero_amount_equal_bounds (test_target.InclusiveAmountRangeTests.test_zero_amount_equal_bounds) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+  "python": "3.12.14"
+}

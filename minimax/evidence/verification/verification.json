@@ -1,0 +1,53 @@
+{
+  "schema": "minimax-sdd-verification-v1",
+  "all_required_checks_passed": true,
+  "versions": {
+    "python": "3.12.14",
+    "minimax-sdd-context": "0.1.0",
+    "powercontext": "1.2.0",
+    "pylibseekdb": "1.4.0.post1",
+    "sqlalchemy": "2.0.54",
+    "pyobvector": "0.2.28",
+    "httpx": "0.28.1"
+  },
+  "minimax_response_id": "073ef1d374032d9d74e6a309b20a8e90",
+  "model": "MiniMax-M3.1-Flash",
+  "changes": [
+    {
+      "path": "src/order_service.py",
+      "before_sha256": "7e1347582568d86030e8d7d5ef2271a3a1575c2fe4ecb35b66ecc9ab35a1a9e7",
+      "after_sha256": "292f5bed8024726f626681d5f946c854b85f4aa283b88c9447e5c919cad7a72e"
+    }
+  ],
+  "unchanged_test_sha256": {
+    "tests/test_regression.py": "108bd258989c3ce221f4384d45b0d81789fbd844a8ede5350b38bf1682657c63",
+    "tests/test_target.py": "177480709d9d92b691379d9b2f74967dc34c3a818da495f03e9104911c7513c6"
+  },
+  "before_target_exit": 1,
+  "before_regression_exit": 0,
+  "after_target_exit": 0,
+  "after_regression_exit": 0,
+  "restarted_process_exit": 0,
+  "state_reused": true,
+  "powercontext_citation": {
+    "memory_ref": {
+      "family": "memory",
+      "artifact_id": "memory",
+      "revision": 2
+    },
+    "entry_id": "mem_ent_e0f2dbbdb97640fea7d03ba5c9ff2b02",
+    "entry_version_id": "mem_ver_6228ca89b58e40e897ca8fdba2058512"
+  },
+  "specification_reimport": {
+    "project_id": "orders-demo",
+    "documents": 4,
+    "changed": [
+      {
+        "path": "specs/orders.md",
+        "sha256": "48333e76ec700adc8d506d1ad8113d1f050fdbc54fd7d85a093fd6cad76ad3fe",
+        "revision": 2
+      }
+    ],
+    "removed": []
+  }
+}

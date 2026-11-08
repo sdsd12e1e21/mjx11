@@ -1,6 +1,6 @@
 # 验证样例：订单金额闭区间
 
-当前仅完成前置验证；第 4–7 步的完整模型改码验收待 MiniMax 额度可用后执行，不能视为已经通过。独立模块测试已经覆盖真实 PowerContext 跨进程读写和 seekdb 规格重新导入。
+真实模型开发记录、修改前后快照和完整验收结果分别见 `evidence/minimax-development.json`、`evidence/development/`、`evidence/verification/`。以下步骤可从空目录复现。
 
 任务 ID：`orders-inclusive-amount-range`。将订单金额筛选从开区间修复为闭区间，同时保留状态筛选、ID 升序、不修改输入和参数校验行为。
 

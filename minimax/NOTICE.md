@@ -4,6 +4,6 @@
 
 使用公开发布的 [PowerContext 1.2.0](https://pypi.org/project/powercontext/1.2.0/) 的 Memory Runtime 与 SeekDBProfile，依赖通过包安装，未复制或修改其源码；[seekdb Python 库](https://pypi.org/project/pylibseekdb/) 提供原生嵌入式数据库。各依赖保留各自许可，准确版本见锁文件和实际运行记录。
 
-MiniMax 接入遵循 [官方 OpenAI 兼容接口](https://platform.minimax.cn/docs/api-reference/text-openai-api)。当前真实请求被余额不足拒绝，尚无模型生成的业务修改；未用模拟输出替代真实开发记录。上下文模块及验收工具由参赛项目实现。业务规格、5 条订单样例及目标/回归测试均为本项目自建的演示数据，不含真实用户业务数据。
+MiniMax 接入遵循 [官方 OpenAI 兼容接口](https://platform.minimax.cn/docs/api-reference/text-openai-api)。本次实际调用模型为 MiniMax-M3.1-Flash；请求上下文、最终代码、响应标识及用量见 `evidence/minimax-development.json`，交付业务实现与该最终输出一致。模拟传输仅用于模块测试，不作为真实开发记录。上下文模块及验收工具由参赛项目实现。业务规格、5 条订单样例及目标/回归测试均为本项目自建的演示数据，不含真实用户业务数据。
 
 根目录 `.github/workflows/minimax.yml` 为运行本目录验收的辅助入口；项目材料均在 `minimax/` 内。`.gitattributes` 统一跨平台换行，以便源码 SHA-256 与真实模型开发记录一致。

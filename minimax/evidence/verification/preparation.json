@@ -1,0 +1,40 @@
+{
+  "versions": {
+    "python": "3.12.14",
+    "minimax-sdd-context": "0.1.0",
+    "powercontext": "1.2.0",
+    "pylibseekdb": "1.4.0.post1",
+    "sqlalchemy": "2.0.54",
+    "pyobvector": "0.2.28",
+    "httpx": "0.28.1"
+  },
+  "import": {
+    "project_id": "orders-demo",
+    "documents": 4,
+    "changed": [
+      {
+        "path": "specs/orders.md",
+        "sha256": "5d7bfad805f6914abbfe0d4f4800aef13492b8ab38d997cb79f69d349eceb556",
+        "revision": 1
+      },
+      {
+        "path": "src/order_service.py",
+        "sha256": "7e1347582568d86030e8d7d5ef2271a3a1575c2fe4ecb35b66ecc9ab35a1a9e7",
+        "revision": 1
+      },
+      {
+        "path": "tests/test_regression.py",
+        "sha256": "108bd258989c3ce221f4384d45b0d81789fbd844a8ede5350b38bf1682657c63",
+        "revision": 1
+      },
+      {
+        "path": "tests/test_target.py",
+        "sha256": "177480709d9d92b691379d9b2f74967dc34c3a818da495f03e9104911c7513c6",
+        "revision": 1
+      }
+    ],
+    "removed": []
+  },
+  "status": "awaiting_minimax_change",
+  "source_manifest": "6c0b647979807e15d4a314ff0b07d33b7edd952c0c7e7324492c672b6c0dbf0e"
+}

@@ -1,0 +1,15 @@
+{
+  "repository": "sdsd12e1e21/mjx11",
+  "commit": "e6275fc0f2b49853e17eddd9d4d2c5a83970c726",
+  "branch": "feat/minimax-sdd",
+  "run_id": "42428924105",
+  "run_url": "https://github.com/sdsd12e1e21/mjx11/actions/runs/42428924105",
+  "commands": [
+    "python -m pytest -p pytest_asyncio.plugin -q tests --basetemp=/runs/test-tmp",
+    "python -m minimax_sdd prepare --project /app/demo --run-dir /runs/development",
+    "python -m minimax_sdd verify --run-dir /runs/development --record /app/evidence/minimax-development.json"
+  ],
+  "all_required_checks_passed": true,
+  "status": "verified",
+  "completed_job_steps_exit": 0
+}

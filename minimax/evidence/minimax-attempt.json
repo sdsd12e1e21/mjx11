@@ -11,5 +11,8 @@
   "generated_code_received": false,
   "counts_as_successful_minimax_participation": false,
   "next_action": "User chose to save progress without purchasing quota. Resume after quota is available.",
-  "credentials_retained": false
+  "credentials_retained": false,
+  "resolved": true,
+  "resolution_date": "2026-11-08",
+  "resolution": "Used the existing M Plan subscription key; actual successful generation is recorded separately in minimax-development.json."
 }

@@ -1,0 +1,253 @@
+{
+  "schema": "minimax-sdd-context-v1",
+  "built_at": "2026-11-08T00:17:12.483149+00:00",
+  "project_id": "orders-demo",
+  "task": {
+    "task_id": "orders-inclusive-amount-range",
+    "title": "修复订单金额筛选的闭区间边界",
+    "description": "select_orders 的最小和最大金额必须包含相等边界；组合状态过滤时仍正确；相等的上下界能查询该金额的订单，包括金额为 0 的订单。",
+    "query": "orders amount range inclusive boundaries",
+    "preserve": [
+      "状态过滤保持不变",
+      "返回结果按订单 ID 排序",
+      "输入记录不可被修改",
+      "非法金额区间继续报错"
+    ],
+    "editable_files": [
+      "src/order_service.py"
+    ],
+    "baseline_files": {
+      "src/order_service.py": "baseline/src/order_service.py"
+    },
+    "spec_update": {
+      "path": "specs/orders.md",
+      "append": "\n## ORD-UPDATE: Reimport verification\n金额上下界相等时不能重复返回同一订单，零金额订单仍可命中。\n",
+      "marker": "ORD-UPDATE"
+    },
+    "expected_sources": [
+      "specs/orders.md",
+      "src/order_service.py",
+      "tests/test_target.py",
+      "tests/test_regression.py"
+    ],
+    "target_tests": [
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_target.py",
+      "-v"
+    ],
+    "regression_tests": [
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_regression.py",
+      "-v"
+    ]
+  },
+  "source_manifest": "ed822708c6e97e330e16432d05efebb85a00d73a7ef43e988ba3e25443d86f46",
+  "sources": [
+    {
+      "path": "specs/orders.md",
+      "kind": "spec",
+      "sha256": "5d7bfad805f6914abbfe0d4f4800aef13492b8ab38d997cb79f69d349eceb556",
+      "revision": 1,
+      "content": "# Order filtering specification / 订单筛选规格\n\nVersion: 1\nKeywords: orders amount range inclusive boundaries\n\n## ORD-001: 金额必须为闭区间\n\n`select_orders` 使用整数分 `amount_cents`，金额范围必须满足\n`min_amount_cents <= amount_cents <= max_amount_cents`。\n省略某一边界表示该侧不受限制。相等的上下界不是空区间。\n金额为 0 的订单也遵守同一规则。\n\n## ORD-002: 组合筛选与兼容性\n\n`status` 精确匹配，与金额条件取交集。省略所有筛选条件时返回全部订单。\n结果按整数订单 ID 升序排列。输入记录及其原有顺序不能被修改。\n\n## ORD-003: 无效输入\n\n边界不能为负数、布尔值或非整数。最小金额大于最大金额时抛出 `ValueError`。\n无匹配结果时返回空列表，不制造占位订单。\n\n## Sources\n\n- 业务入口：`src/order_service.py::select_orders`\n- 新功能验证：`tests/test_target.py`\n- 兼容性验证：`tests/test_regression.py`\n\n",
+      "start_line": 1,
+      "end_line": 28,
+      "symbols": [
+        {
+          "name": "Order filtering specification / 订单筛选规格",
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "name": "ORD-001: 金额必须为闭区间",
+          "start_line": 6,
+          "end_line": 6
+        },
+        {
+          "name": "ORD-002: 组合筛选与兼容性",
+          "start_line": 13,
+          "end_line": 13
+        },
+        {
+          "name": "ORD-003: 无效输入",
+          "start_line": 18,
+          "end_line": 18
+        },
+        {
+          "name": "Sources",
+          "start_line": 23,
+          "end_line": 23
+        }
+      ],
+      "score": 0.8770082804942644
+    },
+    {
+      "path": "src/order_service.py",
+      "kind": "code",
+      "sha256": "292f5bed8024726f626681d5f946c854b85f4aa283b88c9447e5c919cad7a72e",
+      "revision": 2,
+      "content": "\"\"\"Order filtering with inclusive amount-range boundaries.\"\"\"\n\n\ndef select_orders(orders, *, status=None, min_amount_cents=None, max_amount_cents=None):\n    for bound in (min_amount_cents, max_amount_cents):\n        if bound is not None and (type(bound) is not int or bound < 0):\n            raise ValueError(\"amount boundaries must be nonnegative integers\")\n    if min_amount_cents is not None and max_amount_cents is not None and min_amount_cents > max_amount_cents:\n        raise ValueError(\"minimum amount cannot exceed maximum amount\")\n\n    selected = []\n    for order in orders:\n        if status is not None and order[\"status\"] != status:\n            continue\n        if min_amount_cents is not None and order[\"amount_cents\"] < min_amount_cents:\n            continue\n        if max_amount_cents is not None and order[\"amount_cents\"] > max_amount_cents:\n            continue\n        selected.append(dict(order))\n    return sorted(selected, key=lambda order: order[\"id\"])\n",
+      "start_line": 1,
+      "end_line": 20,
+      "symbols": [
+        {
+          "name": "select_orders",
+          "start_line": 4,
+          "end_line": 20
+        }
+      ],
+      "score": 0.6321060187207008
+    },
+    {
+      "path": "tests/test_target.py",
+      "kind": "test",
+      "sha256": "177480709d9d92b691379d9b2f74967dc34c3a818da495f03e9104911c7513c6",
+      "revision": 1,
+      "content": "\"\"\"Target behavior: orders amount range inclusive boundaries.\"\"\"\n\nimport json\nimport sys\nimport unittest\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parents[1]\nsys.path.insert(0, str(ROOT / \"src\"))\nfrom order_service import select_orders  # noqa: E402 - standalone unittest project\n\nORDERS = json.loads((ROOT / \"data/orders.json\").read_text(encoding=\"utf-8\"))\n\n\nclass InclusiveAmountRangeTests(unittest.TestCase):\n    def test_both_amount_boundaries_are_inclusive(self):\n        result = select_orders(ORDERS, min_amount_cents=1000, max_amount_cents=3000)\n        self.assertEqual([order[\"id\"] for order in result], [2, 3, 4, 5])\n\n    def test_equal_amount_bounds_with_status_filter(self):\n        result = select_orders(ORDERS, status=\"paid\", min_amount_cents=2000, max_amount_cents=2000)\n        self.assertEqual([order[\"id\"] for order in result], [3])\n\n    def test_zero_amount_equal_bounds(self):\n        result = select_orders(ORDERS, min_amount_cents=0, max_amount_cents=0)\n        self.assertEqual([order[\"id\"] for order in result], [1])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+      "start_line": 1,
+      "end_line": 30,
+      "symbols": [
+        {
+          "name": "InclusiveAmountRangeTests",
+          "start_line": 15,
+          "end_line": 26
+        },
+        {
+          "name": "test_both_amount_boundaries_are_inclusive",
+          "start_line": 16,
+          "end_line": 18
+        },
+        {
+          "name": "test_equal_amount_bounds_with_status_filter",
+          "start_line": 20,
+          "end_line": 22
+        },
+        {
+          "name": "test_zero_amount_equal_bounds",
+          "start_line": 24,
+          "end_line": 26
+        }
+      ],
+      "score": 0.6928202800398524
+    },
+    {
+      "path": "tests/test_regression.py",
+      "kind": "test",
+      "sha256": "108bd258989c3ce221f4384d45b0d81789fbd844a8ede5350b38bf1682657c63",
+      "revision": 1,
+      "content": "\"\"\"Existing orders amount range behavior that the fix must preserve.\"\"\"\n\nimport json\nimport sys\nimport unittest\nfrom copy import deepcopy\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parents[1]\nsys.path.insert(0, str(ROOT / \"src\"))\nfrom order_service import select_orders  # noqa: E402 - standalone unittest project\n\nORDERS = json.loads((ROOT / \"data/orders.json\").read_text(encoding=\"utf-8\"))\n\n\nclass ExistingOrderBehaviorTests(unittest.TestCase):\n    def test_no_filters_returns_all_in_id_order(self):\n        self.assertEqual([order[\"id\"] for order in select_orders(ORDERS)], [1, 2, 3, 4, 5])\n\n    def test_status_filter_is_exact(self):\n        self.assertEqual([order[\"id\"] for order in select_orders(ORDERS, status=\"paid\")], [2, 3, 5])\n\n    def test_input_records_are_not_mutated(self):\n        before = deepcopy(ORDERS)\n        result = select_orders(ORDERS)\n        result[0][\"status\"] = \"changed\"\n        self.assertEqual(ORDERS, before)\n\n    def test_empty_result(self):\n        self.assertEqual(select_orders(ORDERS, status=\"unknown\"), [])\n\n    def test_reversed_amount_range_is_rejected(self):\n        with self.assertRaises(ValueError):\n            select_orders(ORDERS, min_amount_cents=3000, max_amount_cents=1000)\n\n    def test_invalid_amount_bounds_are_rejected(self):\n        for value in (-1, True, 1.5, \"1000\"):\n            with self.subTest(value=value), self.assertRaises(ValueError):\n                select_orders(ORDERS, min_amount_cents=value)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+      "start_line": 1,
+      "end_line": 43,
+      "symbols": [
+        {
+          "name": "ExistingOrderBehaviorTests",
+          "start_line": 16,
+          "end_line": 39
+        },
+        {
+          "name": "test_no_filters_returns_all_in_id_order",
+          "start_line": 17,
+          "end_line": 18
+        },
+        {
+          "name": "test_status_filter_is_exact",
+          "start_line": 20,
+          "end_line": 21
+        },
+        {
+          "name": "test_input_records_are_not_mutated",
+          "start_line": 23,
+          "end_line": 27
+        },
+        {
+          "name": "test_empty_result",
+          "start_line": 29,
+          "end_line": 30
+        },
+        {
+          "name": "test_reversed_amount_range_is_rejected",
+          "start_line": 32,
+          "end_line": 34
+        },
+        {
+          "name": "test_invalid_amount_bounds_are_rejected",
+          "start_line": 36,
+          "end_line": 39
+        }
+      ],
+      "score": 0.5099206349206349
+    }
+  ],
+  "resumed": true,
+  "needs_revalidation": false,
+  "progress": {
+    "saved": {
+      "changes": [
+        {
+          "after_sha256": "292f5bed8024726f626681d5f946c854b85f4aa283b88c9447e5c919cad7a72e",
+          "before_sha256": "7e1347582568d86030e8d7d5ef2271a3a1575c2fe4ecb35b66ecc9ab35a1a9e7",
+          "path": "src/order_service.py"
+        }
+      ],
+      "completed": [
+        "MiniMax 实际代码修改",
+        "目标测试通过",
+        "原有回归测试通过"
+      ],
+      "model_response_id": "073ef1d374032d9d74e6a309b20a8e90",
+      "pending": [],
+      "record_type": "sdd_task_state",
+      "source_manifest": "ed822708c6e97e330e16432d05efebb85a00d73a7ef43e988ba3e25443d86f46",
+      "task_id": "orders-inclusive-amount-range",
+      "validation": {
+        "regression_exit": 0,
+        "target_exit": 0
+      }
+    },
+    "pending": [],
+    "powercontext_reference": {
+      "state": {
+        "changes": [
+          {
+            "after_sha256": "292f5bed8024726f626681d5f946c854b85f4aa283b88c9447e5c919cad7a72e",
+            "before_sha256": "7e1347582568d86030e8d7d5ef2271a3a1575c2fe4ecb35b66ecc9ab35a1a9e7",
+            "path": "src/order_service.py"
+          }
+        ],
+        "completed": [
+          "MiniMax 实际代码修改",
+          "目标测试通过",
+          "原有回归测试通过"
+        ],
+        "model_response_id": "073ef1d374032d9d74e6a309b20a8e90",
+        "pending": [],
+        "record_type": "sdd_task_state",
+        "source_manifest": "ed822708c6e97e330e16432d05efebb85a00d73a7ef43e988ba3e25443d86f46",
+        "task_id": "orders-inclusive-amount-range",
+        "validation": {
+          "regression_exit": 0,
+          "target_exit": 0
+        }
+      },
+      "scope_id": "scp_7e77ep244qpadsrpdq65n0vv85",
+      "citation": {
+        "memory_ref": {
+          "family": "memory",
+          "artifact_id": "memory",
+          "revision": 2
+        },
+        "entry_id": "mem_ent_e0f2dbbdb97640fea7d03ba5c9ff2b02",
+        "entry_version_id": "mem_ver_6228ca89b58e40e897ca8fdba2058512"
+      }
+    }
+  }
+}
