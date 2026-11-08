@@ -1,0 +1,40 @@
+name: PDF evidence and competition regression
+
+on:
+  push:
+    branches: [fix/pdf-page-retrieval]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build the published frozen environment
+        run: docker compose -f competition/compose.yaml build selftest
+      - name: Validate PDF boundaries and all published code tasks
+        run: |
+          mkdir -p "$RUNNER_TEMP/pdf-reports"
+          chmod 777 "$RUNNER_TEMP/pdf-reports"
+          set -o pipefail
+          docker compose -f competition/compose.yaml run --rm \
+            -v "$PWD/tests:/candidate-tests:ro" \
+            -v "$RUNNER_TEMP/pdf-reports:/reports" \
+            selftest python -m pytest -q -c /selftest/pytest.ini --confcutdir=/selftest \
+            --junitxml=/reports/acceptance.xml --basetemp=/tmp/pdf-acceptance \
+            /candidate-tests/test_pdf_pages.py /selftest/challenges \
+            2>&1 | tee "$RUNNER_TEMP/pdf-reports/acceptance.txt"
+      - name: Expose any failures
+        if: failure()
+        run: python3 .github/scripts/report_pytest_failures.py "$RUNNER_TEMP/pdf-reports/acceptance.xml"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pdf-regression-${{ github.sha }}
+          path: ${{ runner.temp }}/pdf-reports/

@@ -172,6 +172,8 @@ _CONCEPTS = (
     ("pension retirement", "pension retirement benefits"),
     ("buyback buybacks repurchase repurchases", "share repurchases treasury stock"),
     ("liquidity", "cash equivalents financing credit"),
+    ("ppne ppe", "property plant equipment net"),
+    ("segment segments", "segment organic sales growth revenue"),
 )
 
 
@@ -201,6 +203,8 @@ def _query_weights(question: str) -> dict[str, float]:
     for pattern, expansion in (
         (r"\bd\s*&\s*a\b", "depreciation amortization"),
         (r"\bp\s*&\s*l\b", "income earnings statement"),
+        (r"\bm\s*&\s*a\b", "merger acquisition divestiture organic sales growth"),
+        (r"\bcapital[\s-]+intensive\b", "property plant equipment assets revenue capital expenditures"),
     ):
         if re.search(pattern, question, re.IGNORECASE):
             for term in _tokens(expansion):
@@ -230,11 +234,15 @@ def _sections(body: str) -> frozenset[str]:
                 break
     lines = [line for line in lines if not re.fullmatch(r"\d{1,4}", line)]
     sections: set[str] = set()
-    prefix = r"(?:(?:consolidat|combin|condens|unaudit|financial) )*"
+    # Match titles without layout whitespace: a PDF can split even the final
+    # letter of "Sheet" onto a separate text run/line. Keep the grammar anchored
+    # to complete early titles, so mentions inside accounting notes do not match.
+    prefix = r"(?:(?:consolidated|combined|condensed|unaudited|financial))*"
     patterns = {
-        "income": prefix + r"statement (?:incom|operation|earning)(?: loss)?(?: comprehensiv incom)?(?: unaudit)?",
-        "cash_flow": prefix + r"statement cash flow(?: unaudit)?",
-        "balance": prefix + r"(?:balanc sheet|statement financial position)(?: unaudit)?",
+        "income": prefix
+        + r"statements?(?:of)?(?:income|operations|earnings)(?:loss)?(?:comprehensiveincome)?(?:unaudited)?",
+        "cash_flow": prefix + r"statements?(?:of)?cashflows?(?:unaudited)?",
+        "balance": prefix + r"(?:balancesheets?|statements?(?:of)?financialposition)(?:unaudited)?",
     }
     for index in range(min(8, len(lines))):
         if any(len(line) > 110 or len(_WORDS.findall(line)) > 16 for line in lines[:index]):
@@ -245,15 +253,16 @@ def _sections(body: str) -> frozenset[str]:
             normalized = " ".join(_tokens(heading))
             strong = normalized.startswith(("consolidat ", "combin ", "condens "))
             if index < 2 or strong:
-                sections.update(name for name, pattern in patterns.items() if re.fullmatch(pattern, normalized))
-        heading = re.sub(r"^item\s+\d+[a-z]?\s*[.:]?\s*", "", lines[index], flags=re.IGNORECASE)
+                compact = re.sub(r"[^a-z]", "", heading.casefold())
+                sections.update(name for name, pattern in patterns.items() if re.fullmatch(pattern, compact))
+        heading = re.sub(r"^(?:item|note)\s+\d+[a-z]?\s*[.:]?\s*", "", lines[index], flags=re.IGNORECASE)
         heading = re.split(r"(?<=[.!?])\s+", heading, maxsplit=1)[0].strip(" .:")
-        if re.fullmatch(
-            r"(?:our )?(?:business|operations|company|divisions)|business overview|operating segments|reportable segments|geographic information",
-            heading,
-            flags=re.IGNORECASE,
-        ):
-            sections.add("business")
+        titles = {
+            "business": r"(?:our )?(?:business|operations|company|divisions)|business overview|operating segments|reportable segments|geographic information",
+            "segment": r"(?:(?:business|operating|reportable)\s+)?segments?(?:\s+(?:information|results|performance))?"
+            r"|results\s+by\s+(?:business\s+)?(?:segment|group)s?",
+        }
+        sections.update(name for name, pattern in titles.items() if re.fullmatch(pattern, heading, re.IGNORECASE))
     index_lines = sum(
         bool(re.fullmatch(r"[A-Za-z][A-Za-z ,/'()\-\u2013\u2014]{2,80}\s+\d{1,3}", line)) for line in lines
     )
@@ -364,6 +373,8 @@ def _rank_pages(pages: tuple[_Page, ...], question: str, prior: dict[str, float]
 def _evidence_facets(question: str) -> tuple[str, ...]:
     """Recognize general statement and business-overview evidence requests."""
     query = " ".join(_tokens(question))
+    if " ".join(_tokens("capital intensive")) in query:
+        return ("balance", "income", "cash_flow")
     groups = []
     for triggers, section in (
         (
@@ -395,6 +406,8 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
                 "current ratio",
                 "working capital",
                 "shareholders equity",
+                "ppne",
+                "ppe",
             ),
             "balance",
         ),
@@ -402,6 +415,7 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
             ("geography", "geographic", "geographical", "country", "region"),
             "business",
         ),
+        (("segment",), "segment"),
     ):
         if any(" ".join(_tokens(trigger)) in query for trigger in triggers):
             groups.append(section)

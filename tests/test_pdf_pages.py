@@ -381,3 +381,49 @@ async def test_multiple_memory_entries_citing_one_page_return_one_page_citation(
             assert len(entry.sources) == 1
             locations.append(stored[entry.sources[0].source_id].payload["page_number"])
         assert set(locations) == {1, 2}
+
+
+async def test_word_split_balance_sheet_title_remains_statement_evidence(tmp_path):
+    notes = ["Accounting note. " + "Balance sheet net PPNE property equipment assets " * 25] * 25
+    statement = (
+        "Table of Contents\nExample Company\nConsolidated Balance Shee\nt\nAssets\nNet property plant equipment 120."
+    )
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*notes, statement])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(
+            memory, await search_pdf_pages(memory, "What is ACME net PPNE from its balance sheet?", limit=4), stored
+        )
+        assert 26 in {location[2] for location in locations}
+
+
+async def test_capital_intensity_request_retrieves_all_primary_financial_statements(tmp_path):
+    notes = ["Risk factors. " + "Capital intensive business investing operations assets " * 25] * 25
+    statements = [
+        "Consolidated Statement of Income\nNet sales 300. Earnings 120.",
+        "Consolidated Balance Sheet\nProperty plant equipment 200. Total assets 500.",
+        "Consolidated Statement of Cash Flows\nCapital expenditures 50. Operating cash 80.",
+    ]
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*notes, *statements])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(
+            memory,
+            await search_pdf_pages(memory, "Is ACME a capital-intensive business based on FY2024 data?", limit=6),
+            stored,
+        )
+        assert {26, 27, 28} <= {location[2] for location in locations}
+
+
+async def test_segment_growth_excluding_acquisitions_retrieves_segment_disclosure(tmp_path):
+    notes = ["Risk factors. " + "M&A impact overall growth dragged business segment " * 25] * 25
+    statement = "Note 12. Business Segments\nOrganic sales growth excluding acquisitions\nIndustrial 2 percent. Consumer -3 percent."
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*notes, statement])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(
+            memory,
+            await search_pdf_pages(memory, "Excluding M&A, which segment dragged down ACME growth?", limit=4),
+            stored,
+        )
+        assert 26 in {location[2] for location in locations}
