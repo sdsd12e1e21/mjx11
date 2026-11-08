@@ -1,7 +1,9 @@
 """Integration tests that require a running PowerContext server.
 
-These tests exercise the full write -> restart -> read -> schedule-change loop.
-They are skipped when the server is unreachable.
+These tests exercise real memory writes, reads and scope isolation.
+The simulated restart case re-reads data; actual process restart evidence is
+recorded separately in evidence/FINAL_VERIFICATION.md.
+An unreachable server fails the integration run instead of silently skipping it.
 
 Run with: pytest tests/integration/ -v
 """
@@ -10,12 +12,16 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from datetime import date, timedelta
 
 import httpx
 import pytest
 
-POWERCONTEXT_URL = os.environ.get("POWERCONTEXT_URL", "http://127.0.0.1:8000")
+POWERCONTEXT_URL = os.environ.get("POWERCONTEXT_URL", "http://127.0.0.1:18000").rstrip("/")
+
+
+_RUN_ID = uuid.uuid4().hex
 
 
 def _pc_available() -> bool:
@@ -26,10 +32,12 @@ def _pc_available() -> bool:
         return False
 
 
-requires_powercontext = pytest.mark.skipif(
-    not _pc_available(),
-    reason="PowerContext server not reachable at " + POWERCONTEXT_URL,
-)
+@pytest.fixture(scope="module", autouse=True)
+def require_powercontext():
+    assert _pc_available(), (
+        "PowerContext server not reachable at " + POWERCONTEXT_URL
+        + ". Start the real server before running integration tests."
+    )
 
 
 def _post(path: str, body: dict) -> dict:
@@ -43,9 +51,8 @@ def _post(path: str, body: dict) -> dict:
     return resp.json()
 
 
-@requires_powercontext
 def test_create_scope_and_remember_preferences():
-    idem_key = f"integration-test-{date.today().isoformat()}"
+    idem_key = f"integration-test-{_RUN_ID}"
     scope_resp = _post("/v1/scopes", {
         "title": "Integration test scope",
         "summary": "Temporary scope for integration testing",
@@ -74,9 +81,8 @@ def test_create_scope_and_remember_preferences():
     assert artifact.get("revision") == 1
 
 
-@requires_powercontext
 def test_remember_and_list_study_records():
-    idem_key = f"integration-test-records-{date.today().isoformat()}"
+    idem_key = f"integration-test-records-{_RUN_ID}"
     scope_resp = _post("/v1/scopes", {
         "title": "Integration test records",
         "summary": "Temporary scope for record testing",
@@ -121,10 +127,9 @@ def test_remember_and_list_study_records():
     assert found, "Written record not found in list"
 
 
-@requires_powercontext
 def test_persistence_across_simulated_restarts():
     """Write data, then read it back as if the application restarted."""
-    idem_key = f"integration-test-restart-{date.today().isoformat()}"
+    idem_key = f"integration-test-restart-{_RUN_ID}"
     scope_resp = _post("/v1/scopes", {
         "title": "Integration test restart",
         "summary": "Temporary scope for restart testing",
@@ -158,18 +163,17 @@ def test_persistence_across_simulated_restarts():
     assert recovered["learning_goal"] == "Restart test goal"
 
 
-@requires_powercontext
 def test_scope_isolation():
     """Two different scopes should not see each other's data."""
     scope_a_resp = _post("/v1/scopes", {
         "title": "Isolation test A",
         "summary": "Scope A",
-        "idempotency_key": f"isolation-a-{date.today().isoformat()}",
+        "idempotency_key": f"isolation-a-{_RUN_ID}",
     })
     scope_b_resp = _post("/v1/scopes", {
         "title": "Isolation test B",
         "summary": "Scope B",
-        "idempotency_key": f"isolation-b-{date.today().isoformat()}",
+        "idempotency_key": f"isolation-b-{_RUN_ID}",
     })
     scope_a = scope_a_resp["scope_id"]
     scope_b = scope_b_resp["scope_id"]

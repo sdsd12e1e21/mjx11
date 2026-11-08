@@ -1,0 +1,9 @@
+All tests (real PowerContext 1.5.0, default port 18000, Windows PowerShell + Git Bash):
+.................................................................        [100%]
+65 passed in 15.20s
+
+Repeated real integration tests:
+....                                                                     [100%]
+4 passed in 3.98s
+
+Unreachable service control: exit 1, 4 errors (expected); no skips.

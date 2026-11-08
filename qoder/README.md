@@ -8,6 +8,8 @@ https://studyrelay-3qtjlmas0ke.qoder.zone
 
 由 Qoder Sites 发布，已验证无需登录即可访问。网站展示项目、合成样例、真实运行截图和开发记录；实际复习与记忆功能按本文说明在本地运行。发布与匿名访问检查凭证见 `evidence/PUBLICATION.json`。
 
+评审与提测材料总入口：[SUBMISSION.md](SUBMISSION.md)，包含 Qoder 账号 UID、开发会话和验收材料对应关系。
+
 ## 功能概览
 
 - **学习空间**：两个合成演示用户 + 支持自定义添加，每个空间对应独立 PowerContext Scope
@@ -76,9 +78,11 @@ chmod +x start.sh
 启动脚本会自动：
 1. 创建 `.data/powercontext` 数据目录
 2. 启动 PowerContext Server（如果未运行）
-3. 等待 Server 就绪
+3. 等待 Server 就绪（默认最多 60 秒，可用 `PC_START_TIMEOUT` 调整）
 4. 启动 StudyRelay 应用
 5. 退出时清理自有子进程
+
+服务提前退出或超时未就绪时，脚本以失败状态退出，不启动应用。诊断日志位于 `.data/powercontext/`（Windows：`server.stdout.log`、`server.stderr.log`；POSIX：`server.log`）。复用已运行的服务时不会在退出时停止它。脚本读取当前终端的环境变量；`.env.example` 是配置参考，不会自动加载，也不要把占位 token 作为真实凭据使用。
 
 ### 手动启动
 
@@ -112,13 +116,29 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 18080
 
 ## 测试
 
+在 `qoder` 目录、已激活的虚拟环境中执行：
+
 ```bash
 # 单元测试（不需要 PowerContext Server）
-pytest tests/test_scheduler.py tests/test_validation.py -v
-
-# 集成测试（需要 PowerContext Server 运行）
-pytest tests/integration/ -v
+python -m pytest tests/test_scheduler.py tests/test_validation.py tests/test_powercontext_client.py tests/test_startup.py -v
 ```
+
+集成测试需先按上文启动真实 PowerContext 1.5.0。默认地址统一为 `http://127.0.0.1:18000`；连接失败会报错退出，不能将跳过测试视为验收通过。测试为每次运行使用独立 Scope，避免重复执行与历史测试数据冲突。
+
+启动脚本回归测试使用受控外部命令验证超时、提前退出、正常启动、复用服务和应用退出失败。Windows 默认检查 PowerShell；如安装了 Git Bash，可设置 `STUDYRELAY_TEST_BASH` 为其 `bash.exe` 完整路径，再检查 Bash。POSIX 默认检查 Bash。这些回归测试不能替代下述真实服务集成测试。
+
+```powershell
+# Windows PowerShell，新的测试终端也须设置地址
+$env:POWERCONTEXT_URL = 'http://127.0.0.1:18000'
+python -m pytest tests/integration/ -v
+```
+
+```bash
+# POSIX
+POWERCONTEXT_URL=http://127.0.0.1:18000 python -m pytest tests/integration/ -v
+```
+
+集成测试中的“模拟重启”用例仅验证重新读取；真实停止并重启进程的步骤见 `VALIDATION.md`，执行记录见 `evidence/FINAL_VERIFICATION.md` 和 `evidence/ACCEPTANCE_FIX_VERIFICATION.md`。
 
 ## 项目结构
 
@@ -166,6 +186,7 @@ qoder/
 | `POWERCONTEXT_HOME` | `.data/powercontext` | PowerContext 数据目录 |
 | `APP_PORT` | `18080` | 应用端口 |
 | `PC_PORT` | `18000` | PowerContext Server 端口（启动脚本用） |
+| `PC_START_TIMEOUT` | `60` | 启动脚本等待 PowerContext 就绪的最长秒数；超时终止启动 |
 
 ## 适用范围
 
@@ -182,10 +203,11 @@ qoder/
 ## 未完成项
 
 - 自定义卡片录入界面（当前仅支持内置 12 张卡片）
-- 实际截图（展示网站中标记为"待补"）
 - 更多导出格式（当前仅 JSON 和 Markdown）
 - 移动端 PWA 支持
 
 ## 许可证
 
 本项目为 2026 OceanBase 竞赛生态参赛作品。
+
+依赖与来源：核心记忆组件使用官方 [oceanbase/powercontext](https://github.com/oceanbase/powercontext) 的 PyPI 1.5.0 发行版，未修改其实现；本项目新增复习应用、HTTP 客户端、排程、前端与展示站。FastAPI、Uvicorn、httpx、Pydantic 和 pytest 的版本见 `requirements.txt`，各依赖遵循其原有许可证。展示卡片和测试空间均为本项目合成样例。

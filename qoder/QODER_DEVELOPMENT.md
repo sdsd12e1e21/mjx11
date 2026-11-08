@@ -2,6 +2,8 @@
 
 本文档描述本次 Qoder 实际完成的开发工作。仅记录通过工具实际执行的操作，不编造 UID、会话或截图。
 
+Qoder 账号 UID、真实开发/发布会话及赛事材料入口见 [SUBMISSION.md](SUBMISSION.md)。后续由 Codex 完成的启动与验收测试修正见 [ACCEPTANCE_FIX_VERIFICATION.md](evidence/ACCEPTANCE_FIX_VERIFICATION.md)。
+
 ## 开发范围
 
 根据 `BUILD_BRIEF.md` 的要求，完成以下交付物：
