@@ -1,4 +1,4 @@
-name: MiniMax SDD preparation and acceptance
+name: MiniMax SDD complete acceptance
 on:
   push:
     branches: [feat/minimax-sdd]
@@ -29,12 +29,8 @@ jobs:
         working-directory: minimax
         run: |
           docker compose run --rm sdd python -m minimax_sdd prepare --project /app/demo --run-dir /runs/development
-          if test -f evidence/minimax-development.json; then
-            docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/development --record /app/evidence/minimax-development.json
-          else
-            echo '::warning::Draft saved: real MiniMax record unavailable; six-check acceptance is NOT passed.'
-            echo 'MiniMax 额度不足，当前仅验证前置运行条件，尚不可提测。' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          test -f evidence/minimax-development.json
+          docker compose run --rm sdd python -m minimax_sdd verify --run-dir /runs/development --record /app/evidence/minimax-development.json
           mkdir -p .run/artifact
           cp .run/development/*.json .run/artifact/
           cp -r .run/development/reports .run/artifact/

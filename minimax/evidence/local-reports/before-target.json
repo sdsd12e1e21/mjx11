@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-08T00:15:00.190127+00:00",
+  "command": [
+    "python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_target.py",
+    "-v"
+  ],
+  "cwd": "project",
+  "exit_code": 1,
+  "source_manifest": "6c0b647979807e15d4a314ff0b07d33b7edd952c0c7e7324492c672b6c0dbf0e",
+  "source_versions": [
+    {
+      "path": "specs/orders.md",
+      "sha256": "5d7bfad805f6914abbfe0d4f4800aef13492b8ab38d997cb79f69d349eceb556"
+    },
+    {
+      "path": "src/order_service.py",
+      "sha256": "7e1347582568d86030e8d7d5ef2271a3a1575c2fe4ecb35b66ecc9ab35a1a9e7"
+    },
+    {
+      "path": "tests/test_regression.py",
+      "sha256": "108bd258989c3ce221f4384d45b0d81789fbd844a8ede5350b38bf1682657c63"
+    },
+    {
+      "path": "tests/test_target.py",
+      "sha256": "177480709d9d92b691379d9b2f74967dc34c3a818da495f03e9104911c7513c6"
+    }
+  ],
+  "output": "test_both_amount_boundaries_are_inclusive (test_target.InclusiveAmountRangeTests.test_both_amount_boundaries_are_inclusive) ... FAIL\ntest_equal_amount_bounds_with_status_filter (test_target.InclusiveAmountRangeTests.test_equal_amount_bounds_with_status_filter) ... FAIL\ntest_zero_amount_equal_bounds (test_target.InclusiveAmountRangeTests.test_zero_amount_equal_bounds) ... FAIL\n\n======================================================================\nFAIL: test_both_amount_boundaries_are_inclusive (test_target.InclusiveAmountRangeTests.test_both_amount_boundaries_are_inclusive)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<project>\\tests\\test_target.py\", line 18, in test_both_amount_boundaries_are_inclusive\n    self.assertEqual([order[\"id\"] for order in result], [2, 3, 4, 5])\nAssertionError: Lists differ: [3, 4] != [2, 3, 4, 5]\n\nFirst differing element 0:\n3\n2\n\nSecond list contains 2 additional elements.\nFirst extra element 2:\n4\n\n- [3, 4]\n+ [2, 3, 4, 5]\n\n======================================================================\nFAIL: test_equal_amount_bounds_with_status_filter (test_target.InclusiveAmountRangeTests.test_equal_amount_bounds_with_status_filter)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<project>\\tests\\test_target.py\", line 22, in test_equal_amount_bounds_with_status_filter\n    self.assertEqual([order[\"id\"] for order in result], [3])\nAssertionError: Lists differ: [] != [3]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n3\n\n- []\n+ [3]\n?  +\n\n\n======================================================================\nFAIL: test_zero_amount_equal_bounds (test_target.InclusiveAmountRangeTests.test_zero_amount_equal_bounds)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<project>\\tests\\test_target.py\", line 26, in test_zero_amount_equal_bounds\n    self.assertEqual([order[\"id\"] for order in result], [1])\nAssertionError: Lists differ: [] != [1]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n1\n\n- []\n+ [1]\n?  +\n\n\n----------------------------------------------------------------------\nRan 3 tests in 0.002s\n\nFAILED (failures=3)\n",
+  "python": "3.12.10"
+}

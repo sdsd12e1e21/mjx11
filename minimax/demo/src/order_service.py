@@ -1,4 +1,4 @@
-"""Order amount range filtering; the delivered baseline excludes equal boundaries."""
+"""Order filtering with inclusive amount-range boundaries."""
 
 
 def select_orders(orders, *, status=None, min_amount_cents=None, max_amount_cents=None):
@@ -7,13 +7,14 @@ def select_orders(orders, *, status=None, min_amount_cents=None, max_amount_cent
             raise ValueError("amount boundaries must be nonnegative integers")
     if min_amount_cents is not None and max_amount_cents is not None and min_amount_cents > max_amount_cents:
         raise ValueError("minimum amount cannot exceed maximum amount")
+
     selected = []
     for order in orders:
         if status is not None and order["status"] != status:
             continue
-        if min_amount_cents is not None and order["amount_cents"] <= min_amount_cents:
+        if min_amount_cents is not None and order["amount_cents"] < min_amount_cents:
             continue
-        if max_amount_cents is not None and order["amount_cents"] >= max_amount_cents:
+        if max_amount_cents is not None and order["amount_cents"] > max_amount_cents:
             continue
         selected.append(dict(order))
     return sorted(selected, key=lambda order: order["id"])

@@ -37,8 +37,7 @@ async def test_native_seekdb_context_refresh_and_empty_state(tmp_path):
 @pytest.mark.skipif(sys.platform != "linux", reason="native seekdb validation uses the delivered Linux container")
 async def test_full_recorded_development_replay(tmp_path):
     record_path = Path(__file__).parents[1] / "evidence/minimax-development.json"
-    if not record_path.exists():
-        pytest.skip("real MiniMax development record has not been captured yet; this is not full acceptance")
+    assert record_path.exists(), "a real MiniMax development record is required for full acceptance"
     run = tmp_path / "verified"
     await prepare(DEMO, run, "recorded-project")
     result = await verify(run, json.loads(record_path.read_text(encoding="utf-8")))
