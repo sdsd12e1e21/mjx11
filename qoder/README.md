@@ -2,6 +2,12 @@
 
 会记住进度的复习助手。基于 PowerContext 本地记忆服务，为学习与科研场景提供持久化复习进度、薄弱点优先排程、可解释学习规划。
 
+## 公开项目网站
+
+https://studyrelay-3qtjlmas0ke.qoder.zone
+
+由 Qoder Sites 发布，已验证无需登录即可访问。网站展示项目、合成样例、真实运行截图和开发记录；实际复习与记忆功能按本文说明在本地运行。发布与匿名访问检查凭证见 `evidence/PUBLICATION.json`。
+
 ## 功能概览
 
 - **学习空间**：两个合成演示用户 + 支持自定义添加，每个空间对应独立 PowerContext Scope

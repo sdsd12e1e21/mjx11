@@ -1,0 +1,78 @@
+{
+  "checked_at": "2026-11-08T05:36:30.440590+00:00",
+  "publisher": "Qoder CLI native Sites workflow",
+  "publication": {
+    "actionId": "7c9e6679-7425-40de-944b-e07fc1f3c3a7",
+    "projectId": "01a1b8a9-2512-7b21-b03c-b0890a1f438b",
+    "siteId": "01a1b8a9-2513-7a9d-9d2c-e09fdf2a1b7d",
+    "verificationOperationId": "01a1b9a1-8d5b-7c41-b7d3-683ddcabbeac",
+    "publishOperationId": "01a1b9a7-5fe1-7d30-9b11-b32d88791533",
+    "artifactReady": true,
+    "dependenciesReady": null,
+    "retryAfterMs": null,
+    "canPublish": false,
+    "published": true,
+    "blockers": [],
+    "site": {
+      "hasPublishedContent": true,
+      "site_id": "01a1b8a9-2513-7a9d-9d2c-e09fdf2a1b7d",
+      "project_id": "01a1b8a9-2512-7b21-b03c-b0890a1f438b",
+      "lifecycle": "active",
+      "governance_status": "normal",
+      "access_mode": "public",
+      "host": "studyrelay-3qtjlmas0ke.qoder.zone",
+      "subdomain_prefix": "studyrelay",
+      "subdomain_suffix": "-3qtjlmas0ke.qoder.zone",
+      "auth_integration_status": "not_required",
+      "url": "https://studyrelay-3qtjlmas0ke.qoder.zone"
+    },
+    "preparation": {
+      "state": "ready"
+    },
+    "operation": {
+      "operation_id": "01a1b9a7-5fe1-7d30-9b11-b32d88791533",
+      "state": "succeeded",
+      "committed": true,
+      "last_error_code": ""
+    },
+    "readiness": "publication_completed"
+  },
+  "anonymous_http_checks": [
+    {
+      "path": "",
+      "status": 200,
+      "url": "https://studyrelay-3qtjlmas0ke.qoder.zone/",
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 68873
+    },
+    {
+      "path": "showcase.css",
+      "status": 200,
+      "url": "https://studyrelay-3qtjlmas0ke.qoder.zone/showcase.css",
+      "content_type": "text/css; charset=utf-8",
+      "bytes": 7280
+    },
+    {
+      "path": "showcase.js",
+      "status": 200,
+      "url": "https://studyrelay-3qtjlmas0ke.qoder.zone/showcase.js",
+      "content_type": "application/javascript; charset=utf-8",
+      "bytes": 2349
+    },
+    {
+      "path": "development.html",
+      "status": 200,
+      "url": "https://studyrelay-3qtjlmas0ke.qoder.zone/development.html",
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 95270
+    },
+    {
+      "path": "assets/app-memory.jpg",
+      "status": 200,
+      "url": "https://studyrelay-3qtjlmas0ke.qoder.zone/assets/app-memory.jpg",
+      "content_type": "image/jpeg",
+      "bytes": 136541
+    }
+  ],
+  "anonymous_check_method": "Python urllib opener with no cookies, authorization headers or proxy; all checked responses were HTTP 200."
+}
