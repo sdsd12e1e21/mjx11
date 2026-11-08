@@ -174,6 +174,8 @@ _CONCEPTS = (
     ("liquidity", "cash equivalents financing credit"),
     ("ppne ppe", "property plant equipment net"),
     ("segment segments", "segment organic sales growth revenue"),
+    ("cyclicality cyclical cycles cycle", "cyclical cycles economic seasonal seasonality demand"),
+    ("customer customers client clients", "customers clients sales revenue"),
 )
 
 
@@ -261,6 +263,7 @@ def _sections(body: str) -> frozenset[str]:
             "business": r"(?:our )?(?:business|operations|company|divisions)|business overview|operating segments|reportable segments|geographic information",
             "segment": r"(?:(?:business|operating|reportable)\s+)?segments?(?:\s+(?:information|results|performance))?"
             r"|results\s+by\s+(?:business\s+)?(?:segment|group)s?",
+            "tax": r"income taxes|income taxation|taxation|taxes",
         }
         sections.update(name for name, pattern in titles.items() if re.fullmatch(pattern, heading, re.IGNORECASE))
     index_lines = sum(
@@ -291,19 +294,23 @@ def _page(record: MemoryEntryRecord) -> _Page | None:
     )
 
 
-def _document_match(document_id: str, question: str) -> bool:
+def _document_name(document_id: str) -> str:
     parts = re.split(r"[_\s-]+", document_id.casefold())
     for index, part in enumerate(parts):
         if index and re.fullmatch(r"(?:19|20)\d{2}(?:q[1-4])?", part):
             parts = parts[:index]
             break
-    name = "".join(
+    return "".join(
         part
         for part in parts
         if part not in _DOCUMENT_WORDS
         and not part.isdigit()
         and not re.fullmatch(r"(?:19|20)\d{2}q[1-4]|(?:10|8)[kq]|20f", part)
     )
+
+
+def _document_match(document_id: str, question: str) -> bool:
+    name = _document_name(document_id)
     words = re.findall(r"[^\W_]+", question.casefold())
     if len(name) <= 3:
         return bool(name) and name in words
@@ -335,13 +342,26 @@ def _target_documents(pages: tuple[_Page, ...], question: str) -> frozenset[str]
 
 
 def _rank_pages(pages: tuple[_Page, ...], question: str, prior: dict[str, float]) -> list[tuple[float, _Page]]:
-    weights = _query_weights(question)
-    frequencies: Counter[str] = Counter(term for page in pages for term in page.terms)
-    idf = {term: math.log1p((len(pages) - frequencies[term] + 0.5) / (frequencies[term] + 0.5)) for term in weights}
-    average_length = sum(sum(page.terms.values()) for page in pages) / len(pages)
-    raw_terms = _tokens(question)
-    phrases = {f"{left} {right}" for left, right in pairwise(raw_terms) if not left.isdigit() and not right.isdigit()}
     targeted = _target_documents(pages, question)
+    corpus = tuple(page for page in pages if not targeted or page.document_id in targeted)
+    # A company name identifies a report, not an evidence page. Computing IDF
+    # across unrelated companies rewards boilerplate that repeats that name.
+    names = {_document_name(document) for document in targeted}
+    words = _WORDS.findall(question.casefold())
+    identity = {
+        term
+        for index in range(len(words))
+        for width in range(1, min(6, len(words) - index) + 1)
+        if "".join(words[index : index + width]) in names
+        for term in _tokens(" ".join(words[index : index + width]))
+    }
+    weights = _query_weights(question)
+    weights = {term: weight for term, weight in weights.items() if term not in identity}
+    frequencies: Counter[str] = Counter(term for page in corpus for term in page.terms)
+    idf = {term: math.log1p((len(corpus) - frequencies[term] + 0.5) / (frequencies[term] + 0.5)) for term in weights}
+    average_length = sum(sum(page.terms.values()) for page in corpus) / len(corpus)
+    raw_terms = [term for term in _tokens(question) if term not in identity]
+    phrases = {f"{left} {right}" for left, right in pairwise(raw_terms) if not left.isdigit() and not right.isdigit()}
     ranked = []
     for page in pages:
         normalization = 1.2 * (0.6 + 0.4 * sum(page.terms.values()) / max(average_length, 1))
@@ -390,6 +410,8 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
                 "net sales",
                 "revenue",
                 "gross profit",
+                "gross margin",
+                "operating margin",
             ),
             "income",
         ),
@@ -404,6 +426,7 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
                 "total assets",
                 "total liabilities",
                 "current ratio",
+                "quick ratio",
                 "working capital",
                 "shareholders equity",
                 "ppne",
@@ -412,10 +435,11 @@ def _evidence_facets(question: str) -> tuple[str, ...]:
             "balance",
         ),
         (
-            ("geography", "geographic", "geographical", "country", "region"),
+            ("geography", "geographic", "geographical", "country", "region", "customer", "cyclicality", "categories"),
             "business",
         ),
         (("segment",), "segment"),
+        (("tax rate", "income tax"), "tax"),
     ):
         if any(" ".join(_tokens(trigger)) in query for trigger in triggers):
             groups.append(section)

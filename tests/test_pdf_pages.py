@@ -70,7 +70,9 @@ def _pdf(texts, *, password=None, broken_last=False):
         stream.set_data(f"BT /F1 10 Tf 10 200 Td ({literal}) Tj ET".encode("ascii"))
         page[NameObject("/Contents")] = stream
     if broken_last:
-        writer.pages[-1]["/Contents"][NameObject("/Filter")] = NameObject("/UnsupportedFilter")
+        content = writer.pages[-1]["/Contents"]
+        assert isinstance(content, DecodedStreamObject)
+        content[NameObject("/Filter")] = NameObject("/UnsupportedFilter")
     if password is not None:
         writer.encrypt(user_password=password, owner_password="owner-password")  # noqa: S106
     buffer = io.BytesIO()
@@ -130,6 +132,7 @@ async def test_source_revision_identity_and_large_unicode_text_round_trip():
     restored = PDFPageSource.model_validate_json(source.model_dump_json())
     assert await registry.read(restored) == page
     evidence = registry.project(restored, TEXT_EVIDENCE_PROJECTION_KEY)
+    assert isinstance(evidence, dict)
     assert evidence["content"] == f"{page.document_id}\n{text}"
     assert evidence["metadata"] == {"document_id": page.document_id, "document_sha256": "a" * 64, "page_number": 1}
     names = {source.name}
@@ -173,6 +176,7 @@ async def _prepare(tmp_path, documents, *, copies=1):
     )
     observations.append(project_source_for_transport(registry, foreign))
     async with open_builtin_runtime(config) as runtime:
+        assert runtime.scopes is not None
         scope = await runtime.scopes.create(ScopeDraft(title="Reports", summary="Evidence", idempotency_key="reports"))
         other = await runtime.scopes.create(
             ScopeDraft(title="Other scope", summary="Isolated", idempotency_key="isolated")
@@ -427,3 +431,32 @@ async def test_segment_growth_excluding_acquisitions_retrieves_segment_disclosur
             stored,
         )
         assert 26 in {location[2] for location in locations}
+
+
+async def test_other_companies_do_not_make_company_boilerplate_outrank_relevant_evidence(tmp_path):
+    config, scope_id, _, stored = await _prepare(
+        tmp_path,
+        [
+            ("ACME_2024_10K", [*["ACME " * 30] * 25, "Legal dispute pending."]),
+            ("OTHER_2024_10K", ["Legal litigation proceedings contingencies."] * 50),
+        ],
+    )
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        locations = await _locations(memory, await search_pdf_pages(memory, "ACME legal", limit=4), stored)
+        assert locations[0][0] == "ACME_2024_10K" and locations[0][2] == 26
+
+
+async def test_financial_ratios_select_the_underlying_statements_and_tax_disclosure(tmp_path):
+    notes = ["Risk factors. " + "quick ratio gross margin effective tax rate business profile " * 25] * 25
+    statements = [
+        "Consolidated Balance Sheet\nCurrent assets 90. Cash 30. Liabilities 60.",
+        "Consolidated Statement of Income\nSales 300. Cost of sales 200. Net income 70.",
+        "Note 12\nIncome Taxes\nStatutory rate 21 percent. Income tax expense 20.",
+    ]
+    config, scope_id, _, stored = await _prepare(tmp_path, [("ACME_2024_10K", [*notes, *statements])])
+    async with open_builtin_runtime(config) as runtime:
+        memory = runtime.memory.for_scope(scope_id)
+        for question, page in [("ACME quick ratio", 26), ("ACME gross margin", 27), ("ACME effective tax rate", 28)]:
+            locations = await _locations(memory, await search_pdf_pages(memory, question, limit=4), stored)
+            assert page in {location[2] for location in locations}
