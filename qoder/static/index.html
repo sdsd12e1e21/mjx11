@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>续学 StudyRelay - 会记住进度的复习助手</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="header-inner">
+        <h1 class="logo">续学 <span class="logo-sub">StudyRelay</span></h1>
+        <div id="health-badge" class="health-badge health-unknown">检测中...</div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section id="space-section" class="panel">
+        <h2>选择学习空间</h2>
+        <p class="hint">所有数据存储在 PowerContext 本地服务中。以下用户均为合成演示数据。</p>
+        <div id="space-list" class="space-list"></div>
+        <div class="add-space-row">
+          <input type="text" id="new-space-name" placeholder="添加新学习空间名称" maxlength="100">
+          <button id="add-space-btn" class="btn btn-secondary">添加</button>
+        </div>
+      </section>
+
+      <section id="setup-section" class="panel hidden">
+        <h2>学习设置</h2>
+        <div id="setup-form">
+          <label>
+            每日复习分钟数（5-120）
+            <input type="number" id="daily-minutes" min="5" max="120" value="30">
+          </label>
+          <label>
+            学习目标
+            <textarea id="learning-goal" rows="3" maxlength="500" placeholder="例如：掌握数据库索引原理和事务隔离级别"></textarea>
+          </label>
+          <button id="save-prefs-btn" class="btn btn-primary">保存设置</button>
+          <div id="setup-status" class="status-line"></div>
+        </div>
+        <div id="current-prefs" class="hidden">
+          <div class="prefs-display">
+            <span id="prefs-minutes"></span> 分钟/天 &middot;
+            <span id="prefs-goal"></span>
+          </div>
+          <button id="edit-prefs-btn" class="btn btn-secondary">修改设置</button>
+        </div>
+      </section>
+
+      <section id="plan-section" class="panel hidden">
+        <h2>今日复习计划</h2>
+        <div id="plan-summary" class="plan-summary"></div>
+        <div id="plan-continuation" class="continuation-reason"></div>
+        <div id="plan-memory-refs" class="memory-refs"></div>
+        <div id="plan-items" class="plan-items"></div>
+        <div id="plan-empty" class="empty-state hidden">
+          <p>今日所有卡片已复习完毕！</p>
+        </div>
+      </section>
+
+      <section id="review-section" class="panel hidden">
+        <h2>复习卡片</h2>
+        <div id="review-card" class="review-card">
+          <div class="card-topic" id="review-topic"></div>
+          <div class="card-question" id="review-question"></div>
+          <button id="show-answer-btn" class="btn btn-secondary">显示答案</button>
+          <div class="card-answer hidden" id="review-answer"></div>
+          <div class="assessment-row hidden" id="assessment-row">
+            <span>自评：</span>
+            <button class="btn btn-needs-work" data-assessment="needs_work">需加强</button>
+            <button class="btn btn-mastered" data-assessment="mastered">已掌握</button>
+          </div>
+          <div class="notes-row hidden" id="notes-row">
+            <textarea id="review-notes" rows="2" placeholder="可选笔记..."></textarea>
+          </div>
+          <button id="save-session-btn" class="btn btn-primary hidden">保存本次学习</button>
+          <div id="session-status" class="status-line"></div>
+        </div>
+        <div id="review-nav" class="review-nav hidden">
+          <button id="next-card-btn" class="btn btn-primary">下一张卡片</button>
+          <span id="review-progress"></span>
+        </div>
+      </section>
+
+      <section id="memory-panel" class="panel hidden">
+        <h2>记忆面板</h2>
+        <p class="hint">以下是从 PowerContext 读取的真实记忆引用，包含 artifact_id、revision、scope 信息。</p>
+        <div id="memory-records" class="memory-records"></div>
+        <div class="export-row">
+          <button id="export-json-btn" class="btn btn-secondary">导出 JSON</button>
+          <button id="export-md-btn" class="btn btn-secondary">导出 Markdown</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>续学 StudyRelay &middot; 数据由 PowerContext 本地服务持久化 &middot; 合成演示数据，非真实用户</p>
+    </footer>
+  </div>
+
+  <div id="error-overlay" class="error-overlay hidden">
+    <div class="error-dialog">
+      <h3>PowerContext 不可用</h3>
+      <p id="error-message"></p>
+      <p class="hint">依赖记忆的操作已禁用。请确认 PowerContext 服务已启动。</p>
+      <button id="error-retry-btn" class="btn btn-primary">重试</button>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

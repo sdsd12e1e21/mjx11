@@ -1,0 +1,29 @@
+[project]
+name = "studyrelay"
+version = "1.0.0"
+description = "StudyRelay - a review assistant that remembers your progress, powered by PowerContext"
+requires-python = ">=3.11"
+dependencies = [
+    "powercontext[cli,server]==1.5.0",
+    "fastapi==0.162.2",
+    "uvicorn[standard]==0.54.0",
+    "httpx==0.28.1",
+    "pydantic==2.14.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]

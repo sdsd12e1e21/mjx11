@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>续学 StudyRelay - 项目展示</title>
+  <link rel="stylesheet" href="./showcase.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="#overview" class="nav-brand">续学 StudyRelay</a>
+      <div class="nav-links">
+        <a href="#overview">简介</a>
+        <a href="#pain">痛点</a>
+        <a href="#flow">流程</a>
+        <a href="#architecture">架构</a>
+        <a href="#run">运行</a>
+        <a href="#demo">演示</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>续学 StudyRelay</h1>
+      <p class="hero-sub">会记住进度的复习助手</p>
+      <p class="hero-desc">基于 PowerContext 本地记忆服务，为学习与科研场景提供持久化复习进度、薄弱点优先排程、可解释学习规划。</p>
+      <div class="hero-badges">
+        <span class="badge">合成演示数据</span>
+        <span class="badge">本地运行</span>
+        <span class="badge">无云端推理</span>
+        <span class="badge">PowerContext 1.5.0</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+    <section id="overview" class="section">
+      <h2>项目简介</h2>
+      <p>续学 StudyRelay 解决学习和科研中"每次重新说明薄弱点、复习进度散落"的痛点。它将学习偏好和复习记录持久化到 PowerContext 本地服务，每次打开应用时自动从记忆系统恢复进度，生成"上次学到哪里""薄弱点优先"的复习计划。</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>持久化记忆</h3>
+          <p>学习偏好和复习记录写入 PowerContext Atomic Memory，重启后完整恢复。</p>
+        </div>
+        <div class="feature-card">
+          <h3>薄弱点优先</h3>
+          <p>确定性的排程逻辑：需加强卡片优先，已掌握卡片延后 3 天，不伪称智能推荐。</p>
+        </div>
+        <div class="feature-card">
+          <h3>真实引用</h3>
+          <p>展示每次记忆写入/召回的 artifact_id、revision、scope 和请求耗时。</p>
+        </div>
+        <div class="feature-card">
+          <h3>空间隔离</h3>
+          <p>不同学习空间使用独立 PowerContext Scope，数据完全分区。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pain" class="section">
+      <h2>痛点分析</h2>
+      <div class="pain-points">
+        <div class="pain-item">
+          <h4>进度散落</h4>
+          <p>复习记录分散在不同笔记、App 中，无法统一查看哪些已掌握、哪些需加强。</p>
+        </div>
+        <div class="pain-item">
+          <h4>重复说明</h4>
+          <p>每次打开新工具都要重新输入学习目标和薄弱环节，没有持久记忆。</p>
+        </div>
+        <div class="pain-item">
+          <h4>黑箱推荐</h4>
+          <p>很多学习 App 声称"智能推荐"，但排程逻辑不透明，用户无法理解和信任。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow" class="section">
+      <h2>核心流程</h2>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <h4>选择空间</h4>
+          <p>选择合成演示用户或创建新学习空间，每个空间对应独立 PowerContext Scope。</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <h4>设置偏好</h4>
+          <p>设定每日复习分钟数和学习目标，显式保存后写入 PowerContext Atomic Memory。</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <h4>查看计划</h4>
+          <p>系统从 PowerContext 读取历史记录，生成薄弱点优先的复习计划。</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <h4>复习与自评</h4>
+          <p>逐张复习卡片，自评"需加强"或"已掌握"，保存后写入新的学习记录。</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <h4>导出记录</h4>
+          <p>支持导出 JSON 或 Markdown 格式，包含真实记忆引用，不含 token。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section">
+      <h2>技术架构</h2>
+      <p>PowerContext 在本项目中承担全部持久化职责，应用本身不维护独立数据库。</p>
+      <div class="arch-table">
+        <div class="arch-row arch-header">
+          <div class="arch-cell">职责</div>
+          <div class="arch-cell">实现方</div>
+          <div class="arch-cell">说明</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-cell">学习空间</div>
+          <div class="arch-cell">PowerContext Scope</div>
+          <div class="arch-cell">每个空间一个 Scope，幂等键保证重启复用</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-cell">偏好存储</div>
+          <div class="arch-cell">Atomic Memory (kind: study-preferences)</div>
+          <div class="arch-cell">JSON 文本保存每日分钟数和学习目标</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-cell">学习记录</div>
+          <div class="arch-cell">Atomic Memory (kind: study-record)</div>
+          <div class="arch-cell">每条记录含日期、卡片ID、自评、下一步</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-cell">排程逻辑</div>
+          <div class="arch-cell">应用本地</div>
+          <div class="arch-cell">确定性规则，从 PowerContext 读取记录后计算</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-cell">Web 界面</div>
+          <div class="arch-cell">FastAPI + 原生 HTML/CSS/JS</div>
+          <div class="arch-cell">同源部署，无前端框架依赖</div>
+        </div>
+      </div>
+      <p class="code-link">源代码：<a href="https://github.com/sdsd12e1e21/mjx11/tree/feat/qoder-study-coach/qoder" target="_blank" rel="noopener">github.com/sdsd12e1e21/mjx11/tree/feat/qoder-study-coach/qoder</a></p>
+    </section>
+
+    <section id="run" class="section">
+      <h2>本地运行</h2>
+      <div class="run-steps">
+        <h3>环境要求</h3>
+        <ul>
+          <li>Python 3.12+</li>
+          <li>PowerContext Server 1.5.0（<code>powercontext[cli,server]==1.5.0</code>）</li>
+          <li>Windows 10/11（已验证）或 POSIX 系统</li>
+        </ul>
+
+        <h3>快速启动</h3>
+        <pre><code># Windows PowerShell
+.\start.ps1
+
+# POSIX (bash/zsh)
+chmod +x start.sh
+./start.sh</code></pre>
+
+        <h3>手动启动</h3>
+        <pre><code># 1. 设置环境变量
+$env:POWERCONTEXT_HOME = Join-Path (Get-Location) '.data/powercontext'
+
+# 2. 启动 PowerContext Server（独立终端）
+powercontext server run --host 127.0.0.1 --port 18000 --no-env-file
+
+# 3. 启动应用
+uvicorn app.main:app --host 127.0.0.1 --port 18080
+
+# 4. 打开浏览器访问
+# http://127.0.0.1:18080</code></pre>
+      </div>
+    </section>
+
+    <section id="demo" class="section">
+      <h2>演示区</h2>
+      <div class="demo-notice">
+        <p><strong>以下演示区使用合成样例数据，非真实用户数据，非在线记忆服务。</strong></p>
+      </div>
+
+      <div class="demo-area">
+        <h3>内置复习卡片样例</h3>
+        <p class="demo-hint">共 12 张内置卡片，涵盖数据库基础和科研方法两个主题。</p>
+        <div id="demo-cards" class="demo-cards"></div>
+      </div>
+
+      <div class="demo-area">
+        <h3>排程逻辑验证样例</h3>
+        <div class="validation-example">
+          <h4>场景：初始空数据</h4>
+          <ol>
+            <li>选择"小明（合成演示）"空间</li>
+            <li>设置每日 30 分钟，目标"掌握数据库索引"</li>
+            <li>查看计划：应显示高难度卡片优先（B+树、CAP定理等）</li>
+            <li>复习第一张卡片，自评"需加强"</li>
+            <li>保存后刷新：该卡片应在下次计划中继续优先出现</li>
+          </ol>
+        </div>
+        <div class="validation-example">
+          <h4>场景：已掌握卡片延后</h4>
+          <ol>
+            <li>复习一张卡片，自评"已掌握"</li>
+            <li>当天再次查看计划：该卡片不应出现</li>
+            <li>3 天后查看计划：该卡片应重新出现（标记为"到期复习"）</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="demo-area">
+        <h3>真实运行截图与开发记录</h3>
+        <p>2026-11-08 在 Windows 本机连接真实 PowerContext 1.5.0 验证；以下均为合成验收空间。公开站点是作品展示，复习应用依照下方说明在本地运行。</p>
+        <div class="proof-grid">
+          <figure><a href="./assets/app-memory.jpg" target="_blank"><img src="./assets/app-memory.jpg" alt="真实重启后的学习设置、薄弱点优先计划和 PowerContext 引用" loading="lazy"></a><figcaption>真实重启后恢复的设置、计划与记忆引用</figcaption></figure>
+          <figure><a href="./assets/app-review.jpg" target="_blank"><img src="./assets/app-review.jpg" alt="实际复习卡片与自评界面" loading="lazy"></a><figcaption>实际复习卡片、答案和自评操作</figcaption></figure>
+          <figure><a href="./development.html"><img src="./assets/qoder-development.jpg" alt="真实 Qoder CLI 会话摘录查看器截图，非 IDE 原生截图" loading="lazy"></a><figcaption>Qoder CLI 真实记录查看器（非 IDE 原生截图）</figcaption></figure>
+        </div>
+        <p><a href="./development.html">查看 Qoder 真实开发会话摘录</a>。主功能由 Qoder 编写，Codex 负责需求组织、实际测试和最后联调修正；未虚构用户使用规模或提效百分比。</p>
+        <p><strong>验证结果：</strong>55 项测试通过；停止并重启应用及 PowerContext 后，偏好、空间名称、薄弱点优先排序及保存去重均通过真实复验。完整合成数据与引用见仓库 evidence/LIVE_VALIDATION.json。</p>
+      </div>
+    </section>
+
+    <section id="validation" class="section">
+      <h2>验证流程</h2>
+      <p>详细的复现步骤见 <a href="https://github.com/sdsd12e1e21/mjx11/tree/feat/qoder-study-coach/qoder/VALIDATION.md" target="_blank" rel="noopener">VALIDATION.md</a>。</p>
+      <div class="validation-summary">
+        <div class="val-item">
+          <strong>初始空数据</strong>
+          <p>从空 Scope 开始，验证偏好写入和计划生成。</p>
+        </div>
+        <div class="val-item">
+          <strong>持久化恢复</strong>
+          <p>关闭应用后重启，验证从 PowerContext 读取偏好和记录。</p>
+        </div>
+        <div class="val-item">
+          <strong>空间隔离</strong>
+          <p>不同空间的数据互不可见，Scope 完全独立。</p>
+        </div>
+        <div class="val-item">
+          <strong>排程正确性</strong>
+          <p>需加强卡片优先，已掌握卡片 3 天后复出，顺序确定可解释。</p>
+        </div>
+        <div class="val-item">
+          <strong>记忆引用</strong>
+          <p>每次写入返回真实 artifact_id、revision、scope，展示在界面中。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>续学 StudyRelay &middot; 2026 OceanBase 竞赛生态 &middot; 合成演示数据，非真实用户</p>
+  </footer>
+
+  <script src="./showcase.js"></script>
+</body>
+</html>

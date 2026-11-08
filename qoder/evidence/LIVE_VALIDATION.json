@@ -1,0 +1,1125 @@
+{
+  "created_at": "2026-11-08T08:54:32",
+  "scope": "Real app + PowerContext 1.5.0 on isolated local ports; synthetic test spaces only",
+  "events": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "elapsed_ms": 893.43,
+      "response": {
+        "status": "ok",
+        "powercontext": {
+          "available": true,
+          "detail": "PowerContext server is live"
+        },
+        "timestamp": "2026-11-08T00:54:33.279137Z"
+      }
+    },
+    {
+      "path": "/api/spaces",
+      "method": "POST",
+      "elapsed_ms": 55.67,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "name": "验收 A（合成测试）",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "is_synthetic": false
+      }
+    },
+    {
+      "path": "/api/spaces",
+      "method": "POST",
+      "elapsed_ms": 50.13,
+      "response": {
+        "space_id": "custom-921730793f56",
+        "name": "验收 B（合成测试）",
+        "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf",
+        "is_synthetic": false
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 32.12,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 5,
+          "learning_goal": "合成验收目标 0",
+          "created_at": "2026-11-08T00:54:33.387234Z",
+          "updated_at": "2026-11-08T00:54:33.387234Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_8830ac500b3e4ffbb9bb4f7f45a70500",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 32.05,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 6,
+          "learning_goal": "合成验收目标 1",
+          "created_at": "2026-11-08T00:54:33.418658Z",
+          "updated_at": "2026-11-08T00:54:33.418658Z"
+        },
+        "elapsed_ms": 32.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_2adc973a07904c2fa086f2807e491af6",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 28.99,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 7,
+          "learning_goal": "合成验收目标 2",
+          "created_at": "2026-11-08T00:54:33.450751Z",
+          "updated_at": "2026-11-08T00:54:33.450751Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_5a93da4d28c4484995e671a966d34319",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 28.29,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 8,
+          "learning_goal": "合成验收目标 3",
+          "created_at": "2026-11-08T00:54:33.479576Z",
+          "updated_at": "2026-11-08T00:54:33.479576Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_ac1e0c0d3ddb497d9f3403a44547d65c",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 28.06,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 9,
+          "learning_goal": "合成验收目标 4",
+          "created_at": "2026-11-08T00:54:33.508486Z",
+          "updated_at": "2026-11-08T00:54:33.508486Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_a185b699015f4a7ba204433981170ecb",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 27.85,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 10,
+          "learning_goal": "合成验收目标 5",
+          "created_at": "2026-11-08T00:54:33.535945Z",
+          "updated_at": "2026-11-08T00:54:33.535945Z"
+        },
+        "elapsed_ms": 16.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_ff3f22fb40dd40de85aa3eb69aed40f7",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 30.52,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 11,
+          "learning_goal": "合成验收目标 6",
+          "created_at": "2026-11-08T00:54:33.563727Z",
+          "updated_at": "2026-11-08T00:54:33.563727Z"
+        },
+        "elapsed_ms": 15.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_243ca1fc7759452ba656a51192cef582",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 29.18,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 12,
+          "learning_goal": "合成验收目标 7",
+          "created_at": "2026-11-08T00:54:33.594142Z",
+          "updated_at": "2026-11-08T00:54:33.594142Z"
+        },
+        "elapsed_ms": 32.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_96051823943f435b907f384e7ade6cc9",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 28.71,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 13,
+          "learning_goal": "合成验收目标 8",
+          "created_at": "2026-11-08T00:54:33.624261Z",
+          "updated_at": "2026-11-08T00:54:33.624261Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_6328521034a442cbbdcd6dd8daba7229",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 27.91,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 14,
+          "learning_goal": "合成验收目标 9",
+          "created_at": "2026-11-08T00:54:33.652940Z",
+          "updated_at": "2026-11-08T00:54:33.652940Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_a6210f59c7314f3096094d67eb806b22",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 28.87,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 15,
+          "learning_goal": "合成验收目标 10",
+          "created_at": "2026-11-08T00:54:33.680882Z",
+          "updated_at": "2026-11-08T00:54:33.680882Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_74ef02fe127e4beea87339daeb17345b",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 33.85,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 16,
+          "learning_goal": "合成验收目标 11",
+          "created_at": "2026-11-08T00:54:33.708760Z",
+          "updated_at": "2026-11-08T00:54:33.708760Z"
+        },
+        "elapsed_ms": 32.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_ada24747dfab47f7803e2017dbcd1e74",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "GET",
+      "elapsed_ms": 23.96,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 16,
+          "learning_goal": "合成验收目标 11",
+          "created_at": "2026-11-08T00:54:33.708760Z",
+          "updated_at": "2026-11-08T00:54:33.708760Z"
+        },
+        "powercontext_available": true
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/session",
+      "method": "POST",
+      "elapsed_ms": 115.55,
+      "response": {
+        "record": {
+          "record_id": "rec-9bf634f1cd8e",
+          "date": "2026-11-08",
+          "card_id": "db-btree",
+          "assessment": "needs_work",
+          "next_review_date": "2026-11-09",
+          "notes": null,
+          "created_at": "2026-11-08T00:54:33.795885Z",
+          "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8"
+        },
+        "elapsed_ms": 63.0,
+        "memory_citation": {
+          "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+          "state": "active",
+          "state_version": 0
+        },
+        "all_citations": [
+          {
+            "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ],
+        "request_id": "d362afd9255941bfa84ae1658d650a19"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/plan",
+      "method": "GET",
+      "elapsed_ms": 34.4,
+      "response": {
+        "plan": {
+          "space_id": "custom-d4cde8249623",
+          "date": "2026-11-08",
+          "items": [
+            {
+              "card": {
+                "id": "db-btree",
+                "topic": "数据库索引",
+                "question": "B+ 树索引与 B 树索引的主要区别是什么？为什么数据库通常选择 B+ 树？",
+                "answer": "B+ 树的非叶子节点只存键不存数据，所有数据都在叶子节点，且叶子节点用链表相连。这使得范围查询和顺序访问更高效，磁盘 I/O 次数更少，因此数据库通常选择 B+ 树。",
+                "difficulty": 3
+              },
+              "priority": "needs_work",
+              "reason": "上次自评为「需加强」，上次复习: 2026-11-08，优先复习",
+              "last_assessment": "needs_work",
+              "last_review_date": "2026-11-08"
+            },
+            {
+              "card": {
+                "id": "db-distributed-cap",
+                "topic": "分布式系统",
+                "question": "CAP 定理指出分布式系统最多同时满足哪三个性质？OceanBase 如何选择？",
+                "answer": "CAP：Consistency（一致性）、Availability（可用性）、Partition Tolerance（分区容忍性）。网络分区不可避免，因此必须在 C 和 A 间取舍。OceanBase 基于 Paxos 协议优先保证一致性和分区容忍性（CP）。",
+                "difficulty": 5
+              },
+              "priority": "new",
+              "reason": "尚未复习过，按难度从高到低排列",
+              "last_assessment": null,
+              "last_review_date": null
+            }
+          ],
+          "total_estimated_minutes": 16,
+          "memory_references": [
+            {
+              "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            }
+          ]
+        },
+        "total_records": 1,
+        "elapsed_ms": 31.0,
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "daily_minutes": 16,
+        "budget_note": "",
+        "continuation_reason": "共 1 条学习记录，覆盖 1 张卡片；其中 1 次「需加强」；0 次「已掌握」；本次计划 1 张需加强卡片优先；1 张新卡片。"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/session",
+      "method": "POST",
+      "elapsed_ms": 18.08,
+      "response": {
+        "duplicate": true,
+        "request_id": "d362afd9255941bfa84ae1658d650a19",
+        "record": {
+          "record_id": "rec-9bf634f1cd8e",
+          "request_id": "d362afd9255941bfa84ae1658d650a19",
+          "date": "2026-11-08",
+          "card_id": "db-btree",
+          "assessment": "needs_work",
+          "next_review_date": "2026-11-09",
+          "notes": "",
+          "created_at": "2026-11-08T00:54:33.795885Z"
+        },
+        "memory_citation": {
+          "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+          "state": "active",
+          "state_version": 0
+        },
+        "elapsed_ms": 0
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/records",
+      "method": "GET",
+      "elapsed_ms": 19.29,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "records": [
+          {
+            "record_id": "rec-9bf634f1cd8e",
+            "request_id": "d362afd9255941bfa84ae1658d650a19",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:33.795885Z",
+            "_artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          }
+        ],
+        "total": 1,
+        "elapsed_ms": 16.0
+      }
+    },
+    {
+      "path": "/api/spaces/custom-921730793f56/records",
+      "method": "GET",
+      "elapsed_ms": 15.3,
+      "response": {
+        "space_id": "custom-921730793f56",
+        "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf",
+        "records": [],
+        "total": 0,
+        "elapsed_ms": 0.0
+      }
+    },
+    {
+      "path": "/api/spaces/custom-921730793f56/session",
+      "method": "POST",
+      "elapsed_ms": 104.02,
+      "response": {
+        "record": {
+          "record_id": "rec-235f91c10a02",
+          "date": "2026-11-08",
+          "card_id": "db-btree",
+          "assessment": "needs_work",
+          "next_review_date": "2026-11-09",
+          "notes": null,
+          "created_at": "2026-11-08T00:54:33.998323Z",
+          "artifact_id": "art_da57919b40b346c9be88084237d7aee0",
+          "revision": 1,
+          "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf"
+        },
+        "elapsed_ms": 46.0,
+        "memory_citation": {
+          "artifact_id": "art_da57919b40b346c9be88084237d7aee0",
+          "revision": 1,
+          "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf",
+          "state": "active",
+          "state_version": 0
+        },
+        "all_citations": [
+          {
+            "artifact_id": "art_da57919b40b346c9be88084237d7aee0",
+            "revision": 1,
+            "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf",
+            "state": "active",
+            "state_version": 0
+          }
+        ],
+        "request_id": "d362afd9255941bfa84ae1658d650a19"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-921730793f56/records",
+      "method": "GET",
+      "elapsed_ms": 42.48,
+      "response": {
+        "space_id": "custom-921730793f56",
+        "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf",
+        "records": [
+          {
+            "record_id": "rec-235f91c10a02",
+            "request_id": "d362afd9255941bfa84ae1658d650a19",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:33.998323Z",
+            "_artifact_id": "art_da57919b40b346c9be88084237d7aee0",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          }
+        ],
+        "total": 1,
+        "elapsed_ms": 47.0
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/session",
+      "method": "POST",
+      "elapsed_ms": 93.26,
+      "response": {
+        "record": {
+          "record_id": "rec-9d1a17402401",
+          "date": "2026-11-08",
+          "card_id": "db-btree",
+          "assessment": "mastered",
+          "next_review_date": "2026-11-11",
+          "notes": null,
+          "created_at": "2026-11-08T00:54:34.150755Z",
+          "artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citation": {
+          "artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+          "state": "active",
+          "state_version": 0
+        },
+        "all_citations": [
+          {
+            "artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ],
+        "request_id": "e64c7085db844251a7be71ddba43271e"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/plan",
+      "method": "GET",
+      "elapsed_ms": 34.57,
+      "response": {
+        "plan": {
+          "space_id": "custom-d4cde8249623",
+          "date": "2026-11-08",
+          "items": [
+            {
+              "card": {
+                "id": "db-distributed-cap",
+                "topic": "分布式系统",
+                "question": "CAP 定理指出分布式系统最多同时满足哪三个性质？OceanBase 如何选择？",
+                "answer": "CAP：Consistency（一致性）、Availability（可用性）、Partition Tolerance（分区容忍性）。网络分区不可避免，因此必须在 C 和 A 间取舍。OceanBase 基于 Paxos 协议优先保证一致性和分区容忍性（CP）。",
+                "difficulty": 5
+              },
+              "priority": "new",
+              "reason": "尚未复习过，按难度从高到低排列",
+              "last_assessment": null,
+              "last_review_date": null
+            }
+          ],
+          "total_estimated_minutes": 10,
+          "memory_references": [
+            {
+              "artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            },
+            {
+              "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            }
+          ]
+        },
+        "total_records": 2,
+        "elapsed_ms": 32.0,
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "daily_minutes": 16,
+        "budget_note": "",
+        "continuation_reason": "共 2 条学习记录，覆盖 1 张卡片；其中 1 次「需加强」；1 次「已掌握」；1 张新卡片。"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/session",
+      "method": "POST",
+      "elapsed_ms": 106.86,
+      "response": {
+        "record": {
+          "record_id": "rec-7f20f14d696e",
+          "date": "2026-11-08",
+          "card_id": "db-btree",
+          "assessment": "needs_work",
+          "next_review_date": "2026-11-09",
+          "notes": null,
+          "created_at": "2026-11-08T00:54:34.276010Z",
+          "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8"
+        },
+        "elapsed_ms": 47.0,
+        "memory_citation": {
+          "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+          "state": "active",
+          "state_version": 0
+        },
+        "all_citations": [
+          {
+            "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ],
+        "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "PUT",
+      "elapsed_ms": 28.32,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 15,
+          "learning_goal": "重启后继续薄弱点复习",
+          "created_at": "2026-11-08T00:54:34.350975Z",
+          "updated_at": "2026-11-08T00:54:34.350975Z"
+        },
+        "elapsed_ms": 31.0,
+        "memory_citations": [
+          {
+            "artifact_id": "art_58227976bdad4b9e8c758b199bc11c0c",
+            "revision": 1,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+            "state": "active",
+            "state_version": 0
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/plan",
+      "method": "GET",
+      "elapsed_ms": 43.64,
+      "response": {
+        "plan": {
+          "space_id": "custom-d4cde8249623",
+          "date": "2026-11-08",
+          "items": [
+            {
+              "card": {
+                "id": "db-btree",
+                "topic": "数据库索引",
+                "question": "B+ 树索引与 B 树索引的主要区别是什么？为什么数据库通常选择 B+ 树？",
+                "answer": "B+ 树的非叶子节点只存键不存数据，所有数据都在叶子节点，且叶子节点用链表相连。这使得范围查询和顺序访问更高效，磁盘 I/O 次数更少，因此数据库通常选择 B+ 树。",
+                "difficulty": 3
+              },
+              "priority": "needs_work",
+              "reason": "上次自评为「需加强」，上次复习: 2026-11-08，优先复习",
+              "last_assessment": "needs_work",
+              "last_review_date": "2026-11-08"
+            }
+          ],
+          "total_estimated_minutes": 6,
+          "memory_references": [
+            {
+              "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            },
+            {
+              "artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            },
+            {
+              "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            }
+          ]
+        },
+        "total_records": 3,
+        "elapsed_ms": 31.0,
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "daily_minutes": 15,
+        "budget_note": "",
+        "continuation_reason": "共 3 条学习记录，覆盖 1 张卡片；其中 2 次「需加强」；1 次「已掌握」；本次计划 1 张需加强卡片优先。"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/records",
+      "method": "GET",
+      "elapsed_ms": 19.3,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "records": [
+          {
+            "record_id": "rec-7f20f14d696e",
+            "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:34.276010Z",
+            "_artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          },
+          {
+            "record_id": "rec-9d1a17402401",
+            "request_id": "e64c7085db844251a7be71ddba43271e",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "mastered",
+            "next_review_date": "2026-11-11",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:34.150755Z",
+            "_artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          },
+          {
+            "record_id": "rec-9bf634f1cd8e",
+            "request_id": "d362afd9255941bfa84ae1658d650a19",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:33.795885Z",
+            "_artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          }
+        ],
+        "total": 3,
+        "elapsed_ms": 16.0
+      }
+    }
+  ],
+  "checks": [
+    "latest preferences after 12 updates",
+    "real citation and weak card ranked first",
+    "same-process same-space duplicate not written twice",
+    "space isolation",
+    "same-day later mastery supersedes weak assessment"
+  ],
+  "space_a": {
+    "space_id": "custom-d4cde8249623",
+    "name": "验收 A（合成测试）",
+    "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+    "is_synthetic": false
+  },
+  "space_b": {
+    "space_id": "custom-921730793f56",
+    "name": "验收 B（合成测试）",
+    "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf",
+    "is_synthetic": false
+  },
+  "final_request": {
+    "card_id": "db-btree",
+    "assessment": "needs_work",
+    "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505"
+  },
+  "final_citation": {
+    "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+    "revision": 1,
+    "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+    "state": "active",
+    "state_version": 0
+  },
+  "total_before_restart": 3,
+  "seed_success": true,
+  "restart_success": true,
+  "restart_events": [
+    {
+      "path": "/api/spaces/custom-d4cde8249623/preferences",
+      "method": "GET",
+      "elapsed_ms": 1766.86,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "preferences": {
+          "daily_minutes": 15,
+          "learning_goal": "重启后继续薄弱点复习",
+          "created_at": "2026-11-08T00:54:34.350975Z",
+          "updated_at": "2026-11-08T00:54:34.350975Z"
+        },
+        "powercontext_available": true
+      }
+    },
+    {
+      "path": "/api/spaces",
+      "method": "GET",
+      "elapsed_ms": 231.97,
+      "response": {
+        "spaces": [
+          {
+            "space_id": "synthetic-xiaoming",
+            "name": "小明（合成演示）",
+            "scope_id": "scp_363wfyk2achzs154wr9x513gs1",
+            "is_synthetic": true
+          },
+          {
+            "space_id": "synthetic-xiaohong",
+            "name": "小红（合成演示）",
+            "scope_id": "scp_31fanwg7r8mj9rjcd3z9g26k68",
+            "is_synthetic": true
+          },
+          {
+            "space_id": "custom-4859d151ec40",
+            "name": "验收 A（合成测试）",
+            "is_synthetic": false,
+            "scope_id": "scp_2cftzvas87dccg2077h3gncm65"
+          },
+          {
+            "space_id": "custom-921730793f56",
+            "name": "验收 B（合成测试）",
+            "is_synthetic": false,
+            "scope_id": "scp_2v1ys02ymygcgcghkj03bs5snf"
+          },
+          {
+            "space_id": "custom-d31c8a72c972",
+            "name": "验收 B（合成测试）",
+            "is_synthetic": false,
+            "scope_id": "scp_3nasdkb198x0w51ndznwtp32qa"
+          },
+          {
+            "space_id": "custom-d4cde8249623",
+            "name": "验收 A（合成测试）",
+            "is_synthetic": false,
+            "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/plan",
+      "method": "GET",
+      "elapsed_ms": 74.1,
+      "response": {
+        "plan": {
+          "space_id": "custom-d4cde8249623",
+          "date": "2026-11-08",
+          "items": [
+            {
+              "card": {
+                "id": "db-btree",
+                "topic": "数据库索引",
+                "question": "B+ 树索引与 B 树索引的主要区别是什么？为什么数据库通常选择 B+ 树？",
+                "answer": "B+ 树的非叶子节点只存键不存数据，所有数据都在叶子节点，且叶子节点用链表相连。这使得范围查询和顺序访问更高效，磁盘 I/O 次数更少，因此数据库通常选择 B+ 树。",
+                "difficulty": 3
+              },
+              "priority": "needs_work",
+              "reason": "上次自评为「需加强」，上次复习: 2026-11-08，优先复习",
+              "last_assessment": "needs_work",
+              "last_review_date": "2026-11-08"
+            }
+          ],
+          "total_estimated_minutes": 6,
+          "memory_references": [
+            {
+              "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            },
+            {
+              "artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            },
+            {
+              "artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+              "revision": 1,
+              "state": "active",
+              "state_version": 0
+            }
+          ]
+        },
+        "total_records": 3,
+        "elapsed_ms": 47.0,
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "daily_minutes": 15,
+        "budget_note": "",
+        "continuation_reason": "共 3 条学习记录，覆盖 1 张卡片；其中 2 次「需加强」；1 次「已掌握」；本次计划 1 张需加强卡片优先。"
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/records",
+      "method": "GET",
+      "elapsed_ms": 33.35,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "records": [
+          {
+            "record_id": "rec-7f20f14d696e",
+            "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:34.276010Z",
+            "_artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          },
+          {
+            "record_id": "rec-9d1a17402401",
+            "request_id": "e64c7085db844251a7be71ddba43271e",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "mastered",
+            "next_review_date": "2026-11-11",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:34.150755Z",
+            "_artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          },
+          {
+            "record_id": "rec-9bf634f1cd8e",
+            "request_id": "d362afd9255941bfa84ae1658d650a19",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:33.795885Z",
+            "_artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          }
+        ],
+        "total": 3,
+        "elapsed_ms": 15.0
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/session",
+      "method": "POST",
+      "elapsed_ms": 64.7,
+      "response": {
+        "duplicate": true,
+        "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505",
+        "record": {
+          "record_id": "rec-7f20f14d696e",
+          "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505",
+          "date": "2026-11-08",
+          "card_id": "db-btree",
+          "assessment": "needs_work",
+          "next_review_date": "2026-11-09",
+          "notes": "",
+          "created_at": "2026-11-08T00:54:34.276010Z"
+        },
+        "memory_citation": {
+          "artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+          "revision": 1,
+          "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+          "state": "active",
+          "state_version": 0
+        },
+        "elapsed_ms": 0
+      }
+    },
+    {
+      "path": "/api/spaces/custom-d4cde8249623/records",
+      "method": "GET",
+      "elapsed_ms": 24.0,
+      "response": {
+        "space_id": "custom-d4cde8249623",
+        "scope_id": "scp_4c9rzsq38n462zc138rn3z2pv8",
+        "records": [
+          {
+            "record_id": "rec-7f20f14d696e",
+            "request_id": "cb6e52fa79084c9c90f12a4b3a7f0505",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:34.276010Z",
+            "_artifact_id": "art_6b1c8c4c7cb44d4ba62a6aa04648a2b5",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          },
+          {
+            "record_id": "rec-9d1a17402401",
+            "request_id": "e64c7085db844251a7be71ddba43271e",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "mastered",
+            "next_review_date": "2026-11-11",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:34.150755Z",
+            "_artifact_id": "art_8b5b9363959a40528406bcbb4b91ae80",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          },
+          {
+            "record_id": "rec-9bf634f1cd8e",
+            "request_id": "d362afd9255941bfa84ae1658d650a19",
+            "date": "2026-11-08",
+            "card_id": "db-btree",
+            "assessment": "needs_work",
+            "next_review_date": "2026-11-09",
+            "notes": "",
+            "created_at": "2026-11-08T00:54:33.795885Z",
+            "_artifact_id": "art_ac167dffe0e04835a3c6c1d8cef6d49e",
+            "_revision": 1,
+            "_state": "active",
+            "_state_version": 0
+          }
+        ],
+        "total": 3,
+        "elapsed_ms": 15.0
+      }
+    }
+  ],
+  "restart_checks": [
+    "preferences persisted after actual service restart",
+    "custom space label restored after actual restart",
+    "PowerContext memory still determines weak-first review plan",
+    "deduplication persists across app restart"
+  ]
+}

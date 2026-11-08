@@ -1,0 +1,52 @@
+# Data and state
+.data/
+*.db
+*.sqlite
+
+# Environment
+.env
+.env.local
+
+# Local task inputs (not for public distribution)
+BUILD_BRIEF.md
+REVIEW_FEEDBACK.md
+FINAL_FIX_FEEDBACK.md
+SITE_BRIEF.md
+*.qoder.site
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node (if any tooling uses it)
+node_modules/
+
+# Logs
+*.log
