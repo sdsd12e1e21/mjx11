@@ -25,6 +25,7 @@ reply = '记下了！'
 packed = run('savepack', player='alice', query=query, reply=reply)
 assert json.loads(packed['payload'])['reply'] == reply
 assert run('verify',body='{"records":[{"id":"test"}]}',status=200,reply=reply)['answer'] == reply
+assert run('verify',body='{"records":[{"id":"test"}],"finale":"win"}',status=200,reply=reply)['answer'] == 'win'
 for fn, args in [('history',dict(body='{}',status=502)),('verify',dict(body='{}',status=200,reply=reply))]:
     try:
         run(fn, **args)

@@ -5,4 +5,4 @@ def main(body: str, status: int, reply: str) -> dict:
     result = json.loads(body)
     if not result.get("records"):
         raise ValueError("记忆服务未返回写入凭据")
-    return {"answer": reply}
+    return {"answer": result.get("finale") or reply}

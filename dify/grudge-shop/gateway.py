@@ -34,6 +34,11 @@ def recall(player):
 
 def remember(player, query, reply):
     scope = scope_for(player)
+    previous = pc_post('/v1/context/prepare', {'scope_id': scope, 'query': '杂货铺', 'max_bytes': 6000})
+    actions = historical_actions(previous.get('content') or '')
+    finale = resolve_finale(actions, query)
+    if finale:
+        reply = finale
     text = '杂货铺 游戏记录\n玩家实际行动：' + query + '\n店主虚构回复：' + reply
     if len(text.encode()) > 8000:
         raise ValueError('本轮记忆超过8000字节，请缩短输入或模型输出')
@@ -41,7 +46,40 @@ def remember(player, query, reply):
                                          'text': text, 'reason': '玩家参与已说明会保存互动的虚构游戏'})
     if not saved.get('records'):
         raise RuntimeError('PowerContext did not return write evidence')
-    return {'scope_id': scope, 'records': saved['records']}
+    return {'scope_id': scope, 'records': saved['records'], 'finale': finale}
+
+def historical_actions(content):
+    """Inspect only player actions, not fictional NPC dialogue, for game rules."""
+    begin = 'BEGIN_POWERCONTEXT_PREPARED_CONTEXT_V1'
+    end = 'END_POWERCONTEXT_PREPARED_CONTEXT_V1'
+    if begin not in content or end not in content:
+        return []
+    try:
+        payload = json.loads(content.split(begin, 1)[1].split(end, 1)[0].strip())
+        actions = []
+        for item in payload.get('items', []):
+            text = item.get('content', '')
+            if '玩家实际行动：' in text and '\n店主虚构回复：' in text:
+                actions.append(text.split('玩家实际行动：', 1)[1].split('\n店主虚构回复：', 1)[0])
+        return actions
+    except (ValueError, TypeError, KeyError):
+        return []
+
+def resolve_finale(actions, query):
+    # Small, explicit game rules bound the ending independently of model sampling.
+    apologized = any(any(word in action for word in ('道歉', '对不起', '补偿')) for action in actions)
+    helping = any(word in query for word in ('我补回', '我归还', '整理好货架', '诚实宣传'))
+    if apologized and helping:
+        return ('乌老板看着补回的罐头和整齐的货架，终于从小本本里取出一枚徽章，别在你的衣领上。\n'
+                '“空气罐头那笔账我还记得，不过你后来的诚意，我也记下了。”\n'
+                '【店主态度：熟客】\n【友好结局·本店最不放心的熟客】\n'
+                '你获得了熟客徽章！\n1. 试用后悔怀表。\n2. 给诚实雨伞设计广告。\n3. 下次再来探店。')
+    pranks = sum(any(word in action for word in ('恶作剧', '换成空气', '偷偷换')) for action in actions)
+    if pranks >= 2 and any(word in query for word in ('继续恶作剧', '再次恶作剧', '又偷偷换')):
+        return ('乌老板翻开密密麻麻的小本本，把你的名字写进“熟悉的麻烦”一栏。\n'
+                '“你每次来，我都得先检查罐头！”\n【店主态度：记仇】\n'
+                '【黑名单结局·本店最熟悉的麻烦】\n1. 认真道歉。\n2. 补回罐头。\n3. 下次再来。')
+    return ''
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):

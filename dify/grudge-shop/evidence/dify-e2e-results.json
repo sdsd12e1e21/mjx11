@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-08 Asia/Shanghai",
+  "app": "https://udify.app/chat/eHIpVvwq2zFxqKVT",
+  "environment": "Dify Cloud + gpt-4o-mini + cloudflared 2026.10.7 + real PowerContext HTTP Server",
+  "observations": [
+    {
+      "step": "initial_visit",
+      "status": "workflow_succeeded",
+      "input": "我第一次来，想看看借口罐头。",
+      "evidence": "dify-e2e-first.jpg"
+    },
+    {
+      "step": "prank",
+      "status": "workflow_succeeded",
+      "input": "我把借口罐头偷偷换成了空气，标签写着量子罐头。",
+      "observed_attitude": "记仇",
+      "evidence": "dify-e2e-prank.jpg"
+    },
+    {
+      "step": "new_conversation",
+      "status": "workflow_succeeded",
+      "input": "我又来了，你还认得我吗？",
+      "observed_excerpt": "之前你在这里搞了个小恶作剧，把借口罐头换成了空气",
+      "evidence": "dify-e2e-recall.jpg"
+    },
+    {
+      "step": "apology",
+      "status": "workflow_succeeded",
+      "observed_attitude": "心软",
+      "evidence": "dify-e2e-apology.jpg"
+    },
+    {
+      "step": "finale_after_rule_fix",
+      "status": "workflow_succeeded",
+      "observed_result": "友好结局·本店最不放心的熟客",
+      "evidence": "dify-e2e-finale.jpg"
+    },
+    {
+      "step": "published_web_app",
+      "status": "workflow_succeeded",
+      "input": "我第一次来，店里有什么好玩的？",
+      "evidence": "dify-public-play.jpg"
+    }
+  ],
+  "provenance": "Curated observations from visible Dify UI, not raw API responses. Screenshots accompany each step.",
+  "limits": [
+    "Transient tunnel requires author computer online",
+    "Different-player isolation tested through real gateway, not two browser sessions",
+    "Self-hosted Dify 1.9.1 not executed"
+  ]
+}

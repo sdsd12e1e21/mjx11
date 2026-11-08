@@ -1,0 +1,52 @@
+Browser tab: 2, Title: "记仇杂货铺 · 乌老板的小本本 - Dify", URL: "https://udify.app/chat/eHIpVvwq2zFxqKVT".
+1 AXWebArea 记仇杂货铺 · 乌老板的小本本 - Dify, URL: udify.app/chat/eHIpVvwq2zFxqKVT
+	2 container
+		3 text 记仇杂货铺 · 乌老板的小本本
+		4 button 收起侧边栏
+		5 button 开启新对话
+		6 button 我第一次来，店里有什么好玩的？
+		7 pop up button (collapsed) Description: 更多, ID: base-ui-_r_l_, Secondary Actions: Expand
+		8 pop up button (collapsed) Description: 更多, ID: base-ui-_r_a_, Secondary Actions: Expand
+		9 text POWERED BY
+		10 image Dify
+		11 button Description: 重置对话, ID: base-ui-_r_h_
+		12 container
+			13 text 我第一次来，店里有什么好玩的？
+			14 text 🤖
+			15 container
+				16 checkbox Description: 用户反馈: 赞同, Value: 0
+				17 pop up button (collapsed) Description: 用户反馈: 反对, ID: base-ui-_r_1b_, Secondary Actions: Expand
+				18 text 在一个昏暗而神秘的小店铺里，乌老板——一只戴着单片眼镜的乌鸦，正在整理着柜台上的奇物。店内散发着一股古怪的气息，似乎随时会有奇妙的事情发生。 “欢迎光临我的‘记仇杂货铺’！这里有三件奇物，保证让你大开眼界！”乌老板神秘一笑，指向柜台上的三样物品：
+				19 content list
+					20 container
+						21 AXListMarker 1.
+						22 text 借口罐头 ：可以将你的借口变成实体，想要逃避责任？这可是个好帮手，不过记得，借口一旦成真，可就难以收回了哦！
+					23 container
+						24 AXListMarker 2.
+						25 text 后悔怀表 ：这只怀表只能倒流五秒，适合在犯错的瞬间使用，但用得不当可能会让你更后悔。
+					26 container
+						27 AXListMarker 3.
+						28 text 诚实雨伞 ：每当你说谎时，它会自动展开，并给你的谎话打上字幕。可别让别人知道你的小秘密呀！
+				29 text “如果你有兴趣体验或者讨价还价，尽管来找我！记住，可别犯坏哦！”乌老板的眼中闪烁着狡黠的光芒。 【店主态度：心软】
+				30 content list
+					31 container
+						32 AXListMarker 1.
+						33 text 我想试试借口罐头！
+					34 container
+						35 AXListMarker 2.
+						36 text 我想看看后悔怀表有什么使用方法。
+					37 container
+						38 AXListMarker 3.
+						39 text 我想要诚实雨伞，价格能不能便宜一点？
+					40 container
+						41 AXListMarker 4.
+						42 text 自由输入。
+			43 text 耗时 9.43 秒
+			44 text 花费 Token 882
+			45 text 37.34 tokens/s
+			46 container
+				47 text entry area (settable)
+				48 button (disabled) 发送
+		49 container Notifications
+
+The focused UI element is 47 text entry area (settable)
