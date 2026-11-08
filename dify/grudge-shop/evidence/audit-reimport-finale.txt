@@ -1,0 +1,218 @@
+Browser tab: 1, Title: "编排 · 记仇杂货铺 · 乌老板的小本本 - Dify", URL: "https://cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/workflow".
+0 AXWebArea 编排 · 记仇杂货铺 · 乌老板的小本本 - Dify, URL: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/workflow
+	1 container
+		2 link Description: 跳转到主要内容, Value: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/workflow#main-content
+		3 container 工作室
+			4 content list
+				5 link Description: 主页, Value: cloud.dify.ai/
+				6 link Description: 工作室, Value: cloud.dify.ai/apps
+		7 pop up button (collapsed) Description: 搜索任何内容, ID: base-ui-_r_en_, Secondary Actions: Expand
+		8 button Description: 收起侧边栏, ID: base-ui-_r_eq_
+		9 text 记仇杂货铺 · 乌老板的小本本
+		10 pop up button (collapsed) Description: 记仇杂货铺 · 乌老板的小本本 的更多操作, ID: base-ui-_r_eu_, Secondary Actions: Expand
+		11 text CHATFLOW
+		12 container 记仇杂货铺 · 乌老板的小本本
+			13 link Description: 编排, Value: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/workflow
+			14 link Description: 访问入口, Value: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/access-point
+			15 link Description: 日志, Value: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/logs
+			16 link Description: 标注, Value: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/annotations
+			17 link Description: 监测, Value: cloud.dify.ai/app/a55e0146-c821-40c3-a6be-db6509cff382/overview
+		18 pop up button (collapsed) mjx 账户, Help: mjx, ID: base-ui-_r_fa_, Secondary Actions: Expand
+			19 text mjx
+			20 text 账户
+		21 pop up button (collapsed) Description: 打开帮助菜单, ID: base-ui-_r_ff_, Secondary Actions: Expand
+		22 container workflow-container
+			23 container
+				24 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_j5_, Secondary Actions: Expand
+				25 button Description: 添加注释, ID: base-ui-_r_j8_
+				26 checkbox Description: 指针模式, Value: 1, ID: base-ui-_r_ja_
+				27 checkbox Description: 手模式, Value: 0, ID: base-ui-_r_jd_
+				28 button Description: 整理节点, ID: base-ui-_r_jg_
+				29 pop up button (collapsed) Description: 导出图片, ID: base-ui-_r_jl_, Secondary Actions: Expand
+			30 container
+				31 button (disabled) Description: 撤销, ID: base-ui-_r_jp_
+				32 button (disabled) Description: 重做, ID: base-ui-_r_jr_
+				33 pop up button (collapsed) Description: 变更历史, ID: base-ui-_r_ju_, Secondary Actions: Expand
+				292 button 查看缓存
+				293 button 清除
+				36 image React Flow mini map
+				37 button Description: 缩小, ID: base-ui-_r_k1_
+				38 pop up button (collapsed) 29%, ID: base-ui-_r_k5_, Secondary Actions: Expand
+				39 button Description: 放大, ID: base-ui-_r_k8_
+			40 container
+				41 container 工作流保存状态
+					42 text 自动保存
+					43 text 14:53:53
+					44 text 已发布
+					45 text 6 小时前
+				46 button 预览
+				47 pop up button (collapsed) Description: 查看运行历史, ID: base-ui-_r_ke_, Secondary Actions: Expand
+				48 pop up button (collapsed) 检查清单, ID: base-ui-_r_kh_, Secondary Actions: Expand
+				49 button (collapsed) Description: 会话变量, ID: base-ui-_r_kk_, Secondary Actions: Expand
+				50 button (collapsed) Description: 环境变量, ID: base-ui-_r_km_, Secondary Actions: Expand
+				51 button (collapsed) Description: 系统变量, ID: base-ui-_r_ko_, Secondary Actions: Expand
+				52 button 功能
+				53 pop up button (collapsed) 发布, ID: base-ui-_r_kq_, Secondary Actions: Expand
+				54 button Description: 版本历史, ID: base-ui-_r_ks_
+			55 container
+				56 splitter Description: 预览, Value: 400
+				57 text 预览
+				58 button Description: 重新开始, ID: base-ui-_r_pj_
+				59 button 关闭
+				60 container
+					184 text 我又来了，你还认得我吗？
+					185 container
+						186 button (collapsed) 工作流运行成功 玩家看到的回复, Secondary Actions: Expand
+							187 image 工作流运行成功
+							188 text 玩家看到的回复
+						189 text 在“记仇杂货铺”里，灯光依旧微弱，乌老板在柜台后面，一只眼睛透过单片眼镜盯着你，嘴角微微上扬，似乎在思考着什么。 “哦，又是你！我当然记得你。你就是那个把借口罐头偷偷换成量子罐头的家伙吧？我可还没忘呢！不过，不管你如何换标签，这可不是个好主意。”乌老板的语气中透着警惕，“你知道，这些借口罐头在关键时刻可是会反噬的哦！” 店里散发着不安的气息，乌老板继续说道：“你想要什么呢？记得要小心哦，毕竟上次的恶作剧可不是小事！” 【店主态度：警惕】
+						190 content list
+							191 container
+								192 AXListMarker 1.
+								193 text “我就是来买一罐借口罐头，准备认真使用。”
+							194 container
+								195 AXListMarker 2.
+								196 text “我想试试你的诚实雨伞，听说能给谎话打字幕？”
+							197 container
+								198 AXListMarker 3.
+								199 text “我打算再来个恶作剧，你觉得哪个奇物更好？”
+					239 text 我承认上次换了罐头，对不起，我免费帮你整理货架。
+					240 container
+						241 button (collapsed) 工作流运行成功 玩家看到的回复, Secondary Actions: Expand
+							242 image 工作流运行成功
+							243 text 玩家看到的回复
+						244 text 在“记仇杂货铺”的昏暗角落，乌老板微微挑起眉毛，单片眼镜映出你诚恳的表情。他轻声说道：“哦，你终于承认了！看来你的良心有点发现。不过，我可不能让你白白帮我整理货架。”他看向琳琅满目的奇物，嘴角露出一丝狡黠的笑容。 “既然你愿意帮我，我就给你个机会！但别忘了，逃不掉的借口可在货架的某个角落等着你呢！”他向你比划着，其中一罐借口罐头在光线下闪烁，似乎在暗示着什么。 【店主态度：心软】
+						245 content list
+							246 container
+								247 AXListMarker 1.
+								248 text “我愿意帮你整理货架，还想借口罐头来试试！”
+							249 container
+								250 AXListMarker 2.
+								251 text “我能用这个机会换一罐诚实雨伞吗？”
+							252 container
+								253 AXListMarker 3.
+								254 text “我想利用这个机会再来一次恶作剧，你觉得怎么样？”
+					294 text 我补回罐头，整理好货架，继续为你做诚实宣传。现在我来领取熟客徽章。
+					295 container
+						296 button (collapsed) 工作流运行成功 玩家看到的回复, Secondary Actions: Expand
+							297 image 工作流运行成功
+							298 text 玩家看到的回复
+						299 text 乌老板看着补回的罐头和整齐的货架，终于从小本本里取出一枚徽章，别在你的衣领上。
+						300 text “空气罐头那笔账我还记得，不过你后来的诚意，我也记下了。”
+						301 text 【店主态度：熟客】
+						302 text 【友好结局·本店最不放心的熟客】
+						303 text 你获得了熟客徽章！
+						304 content list
+							305 container
+								306 AXListMarker 1.
+								307 text 试用后悔怀表。
+							308 container
+								309 AXListMarker 2.
+								310 text 给诚实雨伞设计广告。
+							311 container
+								312 AXListMarker 3.
+								313 text 下次再来探店。
+					77 container
+						78 container
+							79 text entry area (settable)
+							291 button (disabled) 发送
+						81 button 开启功能增强 web app 用户体验
+							82 image
+							83 text 开启功能增强 web app 用户体验
+							84 image
+			85 container 工作流
+				86 container
+					87 image
+						88 button 从 玩家输入 到 编码行动 的连线
+						89 button 从 编码行动 到 翻开黑历史 的连线
+						90 button 从 翻开黑历史 到 检查召回 的连线
+						91 button 从 检查召回 到 乌老板即兴营业 的连线
+						92 button 从 乌老板即兴营业 到 编码本轮记忆 的连线
+						93 button 从 编码本轮记忆 到 记入小本本 的连线
+						94 button 从 记入小本本 到 核实写入再回复 的连线
+						95 button 从 核实写入再回复 到 玩家看到的回复 的连线
+					96 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_no_, Secondary Actions: Expand
+					97 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_nq_, Secondary Actions: Expand
+					98 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_ns_, Secondary Actions: Expand
+					99 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_nu_, Secondary Actions: Expand
+					100 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_o0_, Secondary Actions: Expand
+					101 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_o2_, Secondary Actions: Expand
+					102 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_o4_, Secondary Actions: Expand
+					103 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_o6_, Secondary Actions: Expand
+					104 button 开始 运行此步骤 更多 添加节点 玩家输入
+						105 text 开始
+						106 container
+							314 container
+								315 button 运行此步骤
+								316 pop up button (collapsed) Description: 更多, ID: base-ui-_r_16i_, Secondary Actions: Expand
+							317 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_15p_, Secondary Actions: Expand
+							111 text 玩家输入
+					112 button 运行此步骤 更多 添加节点 编码行动
+						113 container
+							318 container
+								319 button 运行此步骤
+								320 pop up button (collapsed) Description: 更多, ID: base-ui-_r_16p_, Secondary Actions: Expand
+							321 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_15r_, Secondary Actions: Expand
+							118 text 编码行动
+					119 button 运行此步骤 更多 添加节点 翻开黑历史 POST GATEWAY_URL /recall
+						120 container
+							322 container
+								323 button 运行此步骤
+								324 pop up button (collapsed) Description: 更多, ID: base-ui-_r_170_, Secondary Actions: Expand
+							325 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_15t_, Secondary Actions: Expand
+							125 text 翻开黑历史 POST
+							126 text GATEWAY_URL
+							127 text /recall
+					128 button 运行此步骤 更多 添加节点 检查召回
+						129 container
+							326 container
+								327 button 运行此步骤
+								328 pop up button (collapsed) Description: 更多, ID: base-ui-_r_177_, Secondary Actions: Expand
+							329 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_15v_, Secondary Actions: Expand
+							134 text 检查召回
+					135 button 运行此步骤 更多 添加节点 乌老板即兴营业 gpt-4o-mini CHAT
+						136 container
+							330 container
+								331 button 运行此步骤
+								332 pop up button (collapsed) Description: 更多, ID: base-ui-_r_17e_, Secondary Actions: Expand
+							333 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_161_, Secondary Actions: Expand
+							141 text 乌老板即兴营业
+							142 pop up button (disabled, collapsed) gpt-4o-mini CHAT, ID: base-ui-_r_mj_, Secondary Actions: Expand
+								143 container
+									144 text gpt-4o-mini CHAT
+					145 button 运行此步骤 更多 添加节点 编码本轮记忆
+						146 container
+							334 container
+								335 button 运行此步骤
+								336 pop up button (collapsed) Description: 更多, ID: base-ui-_r_17l_, Secondary Actions: Expand
+							337 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_163_, Secondary Actions: Expand
+							151 text 编码本轮记忆
+					152 button 运行此步骤 更多 添加节点 记入小本本 POST GATEWAY_URL /remember
+						153 container
+							338 container
+								339 button 运行此步骤
+								340 pop up button (collapsed) Description: 更多, ID: base-ui-_r_17s_, Secondary Actions: Expand
+							341 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_165_, Secondary Actions: Expand
+							158 text 记入小本本 POST
+							159 text GATEWAY_URL
+							160 text /remember
+					161 button 运行此步骤 更多 添加节点 核实写入再回复
+						162 container
+							342 container
+								343 button 运行此步骤
+								344 pop up button (collapsed) Description: 更多, ID: base-ui-_r_183_, Secondary Actions: Expand
+							345 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_167_, Secondary Actions: Expand
+							167 text 核实写入再回复
+					168 button 更多 添加节点 玩家看到的回复 回复 核实写入再回复 / answer
+						169 container
+							346 pop up button (collapsed) Description: 更多, ID: base-ui-_r_188_, Secondary Actions: Expand
+							347 pop up button (collapsed) Description: 添加节点, ID: base-ui-_r_169_, Secondary Actions: Expand
+							172 text 玩家看到的回复 回复
+							173 container
+								174 text 核实写入再回复 / answer
+				175 image
+				176 link Description: React Flow attribution, Value: reactflow.dev/
+		177 text 编排 · 记仇杂货铺 · 乌老板的小本本 - Dify
+		178 container Notifications
+
+The focused UI element is 79 text entry area (settable)

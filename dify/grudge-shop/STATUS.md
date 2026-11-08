@@ -34,10 +34,14 @@
 
 全文上下文预算6000字节，长对局早期记录可能被截断，不声称无限记忆。结局是基于明确关键词的小游戏规则，不是一般自然语言任务完成判断。同玩家并发轮次无强顺序保证，写入无 exactly-once 保障，HTTP写入不自动重试。
 
-自部署Dify 1.9.1尚未在本机执行；本次实际运行环境为用户Dify Cloud，使用已有 langgenius/openai/openai 的 gpt-4o-mini。没有记录云端插件的具体版本；评审需配置自己的有效模型供应商凭据。此前单节点测试截图单独保留，不混作完整流程证据。
+自部署Dify 1.9.1尚未在本机执行；本次实际运行环境为用户Dify Cloud，使用已有 langgenius/openai/openai 的 gpt-4o-mini。本轮已通过实际导出核对并锁定OpenAI插件1.1.0，精确摘要见dify-plugin-lock.json；评审需配置自己的有效模型供应商凭据。此前单节点测试截图单独保留，不混作完整流程证据。
 
 ## 报名仓库
 
 用户确认的团队仓库：https://github.com/sdsd12e1e21/mjx11
 
 仓库原先没有比赛分支，因此从官方比赛基线新建2026-competition-ecosystem分支；不修改既有main、master或其他题目的分支。推送结果以交付说明及实际远程分支为准。测评平台还需填写已推送的分支与commit hash，本次没有代交测评表单。
+
+## 本轮材料复查
+
+已补充ACCEPTANCE.md逐条对照、dify目录入口README及模型插件锁定信息。提交版DSL由当前实际运行应用导出并脱敏，版本0.7.0；按同一文件重新导入，在独立游戏namespace中执行连续样例并保留audit-reimport证据。源码未提交真实密钥。

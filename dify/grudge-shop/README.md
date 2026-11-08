@@ -11,9 +11,11 @@
 - `verify.py`：对真实 PowerContext 执行写入、召回、隔离和鉴权验证，自动保存证据。
 - `check_dsl.py`：检查图引用和实际节点代码的输入编码、失败处理。
 - `TESTING.md`：完整试玩顺序、预期表现和重置方法。
+- `ACCEPTANCE.md`：按赛题第三、第四部分逐条对照，标明材料路径和实测边界。
+- `dify-plugin-lock.json`：实际模型插件1.1.0及精确摘要；提交DSL为实际导出并脱敏的0.7.0。
 - `evidence/`：真实记忆读写结果。测试中的店主回复为固定夹具，不冒充模型生成。
 
-已在 Dify Cloud 导入并于2026-11-08实际跑通完整互动，通过 Cloudflare 临时 HTTPS 隧道访问本机 PowerContext，并已发布体验版。试玩入口：https://udify.app/chat/eHIpVvwq2zFxqKVT 。作者电脑和隧道需持续运行，评审复现应自行配置网关地址和密钥。自部署兼容目标为 Dify 1.9.1（以其官方节点定义核对，尚未在本机部署该版本）。实测范围见 `STATUS.md`，免费临时部署见 `LOCAL-DEMO.md`。
+已在 Dify Cloud 导入并于2026-11-08实际跑通完整互动，通过 Cloudflare 临时 HTTPS 隧道访问本机 PowerContext，并已发布体验版。试玩入口：https://udify.app/chat/eHIpVvwq2zFxqKVT 。作者电脑和隧道需持续运行，评审复现应自行配置网关地址和密钥。本次声明的运行环境为 Dify Cloud（2026-11-08滚动服务），实际导出/重新导入的DSL版本为0.7.0；不声明自部署Dify 1.9.1已验证兼容。实测范围见 `STATUS.md`，免费临时部署见 `LOCAL-DEMO.md`。
 
 ## 技术分工
 
@@ -77,9 +79,9 @@ python gateway.py
 
 ## Dify 导入与配置
 
-1. 使用现有 Dify Cloud，或按官方 Dify 1.9.1 的 Docker 部署说明启动 Dify；本交付不修改 Dify 自身数据库。需要有可工作的代码执行环境和 HTTP Request 节点。
+1. 使用 Dify Cloud（本次实际验证环境，2026-11-08），需要可工作的代码执行环境和 HTTP Request 节点。云端未在此界面公开服务构建版本，交付以实际导出的 DSL 0.7.0 与锁定模型插件为准。旧版自部署 Dify 需自行验证导入兼容性，不列为本次验收环境。
 2. 在工作室“导入 DSL 文件”选择 `grudge-shop.yml`，或在已有 Chatflow 的菜单中先备份再导入。只导入这一份文件，无知识库、素材或初始化记忆需要导入。
-3. 在“乌老板即兴营业”节点选择已配置的聊天模型。DSL 默认为 `langgenius/openai/openai` 的 `gpt-4o-mini`，需要工作区已有官方 OpenAI 模型供应商插件及有效凭据/试用额度。模型插件版本由工作区管理，应记录最终安装版本。也可手动换成已配置的其他中文聊天模型，不要将凭据写入 DSL。
+3. 在“乌老板即兴营业”节点选择已配置的聊天模型。DSL 默认为 `langgenius/openai/openai` 的 `gpt-4o-mini`，使用官方 OpenAI 模型供应商插件 **1.1.0**，安装来源 https://marketplace.dify.ai/plugins/langgenius/openai ，以及有效模型凭据/试用额度。导入 DSL 时检查依赖安装，或者在“插件”中从 Marketplace 安装 OpenAI 1.1.0，然后在“模型供应商”中配置自己的凭据，再回到模型节点选择 gpt-4o-mini。精确插件标识及摘要记录在 `dify-plugin-lock.json`，DSL 也已包含相同依赖声明。也可手动换成已配置的其他中文聊天模型，不要将凭据写入 DSL。
 4. 设置环境变量 `GATEWAY_URL`（网关根地址，末尾无斜杠）和 secret 类型的 `GATEWAY_TOKEN`。token 与网关启动环境完全一致。HTTP 两个节点会自动引用这两个变量。
 5. Dify 云端必须使用公网可达的有效 HTTPS 地址。`127.0.0.1` 指向 Dify 服务器本身，不能用来访问作者电脑。自部署 Dify 的容器也要使用容器实际可达的宿主/内网网关地址，并按 Dify 官方 SSRF 代理策略配置可访问目标。
 6. 先用预览执行 TESTING.md；全部通过后才发布 Web 应用，保留 Dify 节点执行记录。不要把导入成功等同于运行验收成功。

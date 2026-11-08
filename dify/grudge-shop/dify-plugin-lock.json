@@ -1,0 +1,16 @@
+{
+  "dify_environment": "Dify Cloud, verified 2026-11-08",
+  "dsl_version": "0.7.0",
+  "dependencies": [
+    {
+      "current_identifier": null,
+      "type": "marketplace",
+      "value": {
+        "marketplace_plugin_unique_identifier": "langgenius/openai:1.1.0@1ded02acee56efd5788c86fd447d792e4923e959554a4942f440c7859d164340",
+        "version": null
+      }
+    }
+  ],
+  "model": "gpt-4o-mini",
+  "source": "https://marketplace.dify.ai/plugins/langgenius/openai"
+}
