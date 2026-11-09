@@ -5,36 +5,72 @@ import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import ProxyHandler, Request, build_opener, urlopen
+from urllib.parse import urlparse
 
 PC_URL = os.environ.get('POWERCONTEXT_URL', 'http://127.0.0.1:8000').rstrip('/')
 PC_TOKEN = os.environ.get('POWERCONTEXT_TOKEN', '')
 TOKEN = os.environ.get('GATEWAY_TOKEN', '')
 NAMESPACE = os.environ.get('GAME_NAMESPACE', 'grudge-shop-v1')
+PC_TIMEOUT = 15
+# Loopback traffic must not accidentally go through a machine's HTTP proxy.
+PC_OPENER = (build_opener(ProxyHandler({})) if urlparse(PC_URL).hostname in
+             ('127.0.0.1', 'localhost', '::1') else build_opener())
+
+def validate_context(data):
+    if not isinstance(data, dict) or data.get('status') not in ('empty', 'ready'):
+        raise RuntimeError('PowerContext returned an invalid context status')
+    content = data.get('content')
+    if data['status'] == 'ready' and (not isinstance(content, str) or not content.strip()):
+        raise RuntimeError('PowerContext returned ready without content')
+    if data['status'] == 'empty' and content not in (None, ''):
+        raise RuntimeError('PowerContext returned inconsistent empty content')
+    return data
+
+def validate_records(saved):
+    records = saved.get('records') if isinstance(saved, dict) else None
+    if not isinstance(records, list) or not records:
+        raise RuntimeError('PowerContext did not return write evidence')
+    for record in records:
+        ref = record.get('artifact') if isinstance(record, dict) else None
+        if (not isinstance(ref, dict) or ref.get('family') != 'atomic-memory'
+                or not isinstance(ref.get('artifact_id'), str) or not ref['artifact_id']
+                or type(ref.get('revision')) is not int or ref['revision'] < 1):
+            raise RuntimeError('PowerContext returned an invalid ArtifactRef')
+    return records
 
 def pc_post(path, payload):
     headers = {'Content-Type': 'application/json'}
     if PC_TOKEN:
         headers['Authorization'] = 'Bearer ' + PC_TOKEN
     req = Request(PC_URL + path, json.dumps(payload, ensure_ascii=False).encode(), headers, method='POST')
-    with urlopen(req, timeout=25) as response:
-        return json.load(response)
+    with PC_OPENER.open(req, timeout=PC_TIMEOUT) as response:
+        try:
+            data = json.load(response)
+        except (ValueError, UnicodeError) as error:
+            raise RuntimeError('PowerContext returned invalid JSON') from error
+    if not isinstance(data, dict):
+        raise RuntimeError('PowerContext returned a non-object response')
+    return data
 
 def scope_for(player):
     # Only authenticated application callers may supply player IDs.
     # Dify DSL binds this to sys.user_id, never to LLM output or user text.
     key = hashlib.sha256((NAMESPACE + '\0' + player).encode()).hexdigest()
-    return pc_post('/v1/scopes', {'title': '记仇杂货铺玩家', 'summary': '虚构游戏互动',
-                                 'idempotency_key': 'grudge-shop-' + key})['scope_id']
+    data = pc_post('/v1/scopes', {'title': '记仇杂货铺玩家', 'summary': '虚构游戏互动',
+                                'idempotency_key': 'grudge-shop-' + key})
+    if not isinstance(data.get('scope_id'), str) or not data['scope_id']:
+        raise RuntimeError('PowerContext did not return a scope ID')
+    return data['scope_id']
 
 def recall(player):
     scope = scope_for(player)
-    data = pc_post('/v1/context/prepare', {'scope_id': scope, 'query': '杂货铺', 'max_bytes': 6000})
+    data = validate_context(pc_post('/v1/context/prepare', {'scope_id': scope, 'query': '杂货铺', 'max_bytes': 6000}))
     return {'scope_id': scope, 'status': data['status'], 'content': data.get('content'), 'prepared': data}
 
 def remember(player, query, reply):
     scope = scope_for(player)
-    previous = pc_post('/v1/context/prepare', {'scope_id': scope, 'query': '杂货铺', 'max_bytes': 6000})
+    previous = validate_context(pc_post('/v1/context/prepare', {'scope_id': scope, 'query': '杂货铺', 'max_bytes': 6000}))
     actions = historical_actions(previous.get('content') or '')
     finale = resolve_finale(actions, query)
     if finale:
@@ -44,9 +80,7 @@ def remember(player, query, reply):
         raise ValueError('本轮记忆超过8000字节，请缩短输入或模型输出')
     saved = pc_post('/v1/memory/remember', {'scope_id': scope, 'kind': 'game_event',
                                          'text': text, 'reason': '玩家参与已说明会保存互动的虚构游戏'})
-    if not saved.get('records'):
-        raise RuntimeError('PowerContext did not return write evidence')
-    return {'scope_id': scope, 'records': saved['records'], 'finale': finale}
+    return {'scope_id': scope, 'records': validate_records(saved), 'finale': finale}
 
 def historical_actions(content):
     """Inspect only player actions, not fictional NPC dialogue, for game rules."""
@@ -56,10 +90,14 @@ def historical_actions(content):
         return []
     try:
         payload = json.loads(content.split(begin, 1)[1].split(end, 1)[0].strip())
+        if not isinstance(payload, dict) or not isinstance(payload.get('items', []), list):
+            return []
         actions = []
         for item in payload.get('items', []):
+            if not isinstance(item, dict):
+                continue
             text = item.get('content', '')
-            if '玩家实际行动：' in text and '\n店主虚构回复：' in text:
+            if isinstance(text, str) and '玩家实际行动：' in text and '\n店主虚构回复：' in text:
                 actions.append(text.split('玩家实际行动：', 1)[1].split('\n店主虚构回复：', 1)[0])
         return actions
     except (ValueError, TypeError, KeyError):
@@ -96,7 +134,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path != '/health':
             return self.respond(404, {'error': 'not_found'})
-        self.respond(200, {'service': 'grudge-shop-gateway', 'storage': 'PowerContext', 'status': 'live'})
+        try:
+            headers = {'Authorization': 'Bearer ' + PC_TOKEN} if PC_TOKEN else {}
+            with PC_OPENER.open(Request(PC_URL + '/health/live', headers=headers), timeout=3) as response:
+                healthy = response.status == 200 and json.load(response).get('status') == 'ok'
+            if not healthy:
+                raise RuntimeError('PowerContext is not ready')
+        except (HTTPError, URLError, TimeoutError, OSError, ValueError, AttributeError, RuntimeError):
+            return self.respond(503, {'service': 'grudge-shop-gateway', 'status': 'not_ready',
+                                      'powercontext': 'unavailable'})
+        self.respond(200, {'service': 'grudge-shop-gateway', 'storage': 'PowerContext', 'status': 'ready'})
 
     def do_POST(self):
         auth = self.headers.get('Authorization', '')
@@ -109,6 +156,8 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= 20000:
                 return self.respond(413, {'error': 'invalid_body_size'})
             data = json.loads(self.rfile.read(length))
+            if not isinstance(data, dict):
+                raise ValueError('request body must be an object')
             player = data.get('player_id')
             if not isinstance(player, str) or not 1 <= len(player) <= 256:
                 raise ValueError('player_id must contain 1-256 characters')

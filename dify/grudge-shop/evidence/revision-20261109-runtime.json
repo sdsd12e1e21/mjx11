@@ -1,0 +1,36 @@
+{
+  "python": "3.12.10",
+  "packages": {
+    "powercontext": "1.5.0",
+    "fastapi": "0.162.2",
+    "uvicorn": "0.54.0",
+    "httpx": "0.28.1",
+    "pydantic": "2.14.3"
+  },
+  "dsl_sha256": "e99e8a9ee358f4bc8c18feb69443bc600c4c3bc48a97d7f7c0ab60c6a16dae36",
+  "dsl_version": "0.4.0",
+  "node_count": 9,
+  "dify_validation_app_id": "0286523b-0461-4f28-90ff-9fa2dbf57e3c",
+  "self_hosted_dify_1_9_1_full_run": false,
+  "official_dify_1_9_1_version_gate": {
+    "source": "https://github.com/langgenius/dify/blob/1.9.1/api/services/app_dsl_service.py",
+    "reference_commit": "cd47a47c3b4acc4d4457b73777722602c33bc950",
+    "source_dsl_version": "0.4.0",
+    "previous_0_7_0": "pending",
+    "current_0_4_0": "completed",
+    "scope": "Executed the original version-check function only, not a full self-hosted Dify runtime."
+  },
+  "dify_full_flow": {
+    "imported_from_configured_submission_template": true,
+    "fresh_namespace": true,
+    "native_dify_chat_memory_enabled": false,
+    "first_visit_success": true,
+    "prank_write_success": true,
+    "powercontext_and_gateway_actually_restarted_before_new_conversation": true,
+    "cross_conversation_recall_quote": "欢迎回来，您又来了！当然记得您，上次您可是把借口罐头偷偷换成了空气，标签上写着“量子罐头”。",
+    "apology_success": true,
+    "friendly_finale_success": true,
+    "published": false
+  },
+  "unit_tests_passed": 13
+}

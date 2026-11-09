@@ -2,18 +2,18 @@
 
 ## A. 无模型的真实记忆闭环
 
-启动 README 中的两个服务，并在第三个终端配置相同的 `GATEWAY_TOKEN`：
+按 README 使用 `run_local.py` 启动两个服务，在第三个终端使用生成的私有连接文件：
 
 ```bash
 python check_dsl.py
-python verify.py
+python verify.py --connection .runtime/connection.json
 ```
 
 verify 每次生成新的随机测试玩家，无需清除已有记忆。步骤为：新玩家召回应为空 → 保存“量子罐头”恶作剧 → 新的 HTTP 请求以同玩家召回 → 确认实际内容包含该恶作剧 → 不同玩家召回应为空 → 错误 token 应返回401。
 
 证据保存在 `evidence/powercontext-roundtrip.json`，包含真实写入 records、scope ID、prepare 返回内容。店主台词是测试夹具，此测试验证实际指定技术的读写与复用，不验证 Dify 或模型。
 
-## B. Dify 完整试玩（已在Dify Cloud实测，可按此复现）
+## B. Dify 完整试玩（2026-11-09 已重新导入并实测）
 
 初始条件：使用新的终端用户身份，或在网关设置全新的 `GAME_NAMESPACE` 后重启。没有预置记忆。模型使用 README 指定配置或记录最终替代模型。
 
@@ -34,4 +34,8 @@ verify 每次生成新的随机测试玩家，无需清除已有记忆。步骤�
 - 超长输入明确失败；长对局回忆有6000字节预算，不验收无限历史。
 - 重置使用新的测试玩家或更换 `GAME_NAMESPACE`，这是开始一个新世界，旧记录仍保留。不要为了重跑删除作者或其他玩家的数据。
 
-当前实际执行范围见 STATUS.md。B部分在Dify Cloud已完成首次光临、恶作剧、跨对话回忆、补偿和熟客结局，公开入口也已实测；不同玩家隔离通过真实公网网关验证，未用两个独立浏览器身份重跑完整游戏。规则回归可执行 `python test_game_rules.py`。
+当前实际执行范围见 STATUS.md 和 REVISION-20261109.md。B部分在Dify Cloud已完成首次光临、恶作剧、跨对话回忆、补偿和熟客结局，公开入口也已实测；不同玩家隔离通过真实公网网关验证，未用两个独立浏览器身份重跑完整游戏。规则回归可执行 `python test_game_rules.py`。
+
+## D. 无模型的完整启动与重启检查
+
+先停止同端口的 run_local.py，再执行两次 `python run_local.py --check`。第一轮启动官方 PowerContext 与网关，写入独立测试玩家，并在结束时关闭全部自有进程。第二轮重新启动，从同一目录恢复原玩家和“量子罐头”记录；每轮都应返回退出码 0。不要在两轮之间删除 `.runtime`。端口冲突时选择相同的另一组 `--pc-port`/`--gateway-port`；正式试玩与测试可用不同 `--state-dir`。

@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "name": "normal_check_shutdown",
+      "ports_closed": true
+    },
+    {
+      "name": "startup_timeout",
+      "exit": 1,
+      "ports_closed": true
+    },
+    {
+      "name": "occupied_port_is_rejected",
+      "exit": 2
+    },
+    {
+      "name": "existing_service_untouched",
+      "status": 200
+    },
+    {
+      "name": "dependency_health",
+      "status": 503,
+      "body": {
+        "service": "grudge-shop-gateway",
+        "status": "not_ready",
+        "powercontext": "unavailable"
+      }
+    },
+    {
+      "name": "invalid_json_shape",
+      "status": 400,
+      "body": {
+        "error": "invalid_input"
+      }
+    },
+    {
+      "name": "dependency_request",
+      "status": 502,
+      "body": {
+        "error": "powercontext_unavailable"
+      }
+    }
+  ],
+  "passed": true
+}

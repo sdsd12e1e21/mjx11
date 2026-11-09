@@ -1,127 +1,91 @@
 # 记仇杂货铺 · 乌老板的小本本
 
-你把借口罐头换成了空气。关掉聊天，再来砍价，乌老板却掏出了那张写着“量子罐头”的标签。
+你把借口罐头换成空气，关掉聊天再来砍价，乌老板却掏出写着“量子罐头”的标签。
 
-这是一个 Dify Chatflow 角色互动游戏。玩家可以试用三件有副作用的奇物、恶作剧、道歉和补偿，尝试得到“本店最不放心的熟客”徽章。场景与对话由语言模型即兴演绎；熟客徽章和黑名单结局由明确的轻量规则结算，避免模型无限追加任务。
+这是 Dify Chatflow 角色游戏。玩家试用奇物、恶作剧、道歉和补偿，尝试得到“本店最不放心的熟客”徽章。模型即兴演绎，网关根据玩家实际行动结算友好/黑名单结局。**Dify 负责编排和模型调用，PowerContext 保存并召回真实游戏互动。** 不使用 seekdb、额外知识库、Embedding 或 Rerank。
 
-## 交付与当前状态
+## 本次修订与材料入口
 
-- `grudge-shop.yml`：唯一需要导入的 DSL，包含全部九个节点，JSON 表示的合法 YAML。
-- `gateway.py`：标准库 HTTP 网关，没有私有数据、预装状态或本地历史缓存。
-- `verify.py`：对真实 PowerContext 执行写入、召回、隔离和鉴权验证，自动保存证据。
-- `check_dsl.py`：检查图引用和实际节点代码的输入编码、失败处理。
-- `TESTING.md`：完整试玩顺序、预期表现和重置方法。
-- `ACCEPTANCE.md`：按赛题第三、第四部分逐条对照，标明材料路径和实测边界。
-- `dify-plugin-lock.json`：实际模型插件1.1.0及精确摘要；提交DSL为实际导出并脱敏的0.7.0。
-- `evidence/`：真实记忆读写结果。测试中的店主回复为固定夹具，不冒充模型生成。
+2026-11-09 修订：改用 PyPI PowerContext **1.5.0** 正式发行版；提供统一启动、就绪检查和本地 DSL 配置工具；加强召回/写入的返回结构校验。唯一提交 DSL 为 `grudge-shop.yml`，采用 **0.4.0 兼容格式**，不是将运行环境版本号改为 0.4.0。
 
-已在 Dify Cloud 导入并于2026-11-08实际跑通完整互动，通过 Cloudflare 临时 HTTPS 隧道访问本机 PowerContext，并已发布体验版。试玩入口：https://udify.app/chat/eHIpVvwq2zFxqKVT 。作者电脑和隧道需持续运行，评审复现应自行配置网关地址和密钥。本次声明的运行环境为 Dify Cloud（2026-11-08滚动服务），实际导出/重新导入的DSL版本为0.7.0；不声明自部署Dify 1.9.1已验证兼容。实测范围见 `STATUS.md`，免费临时部署见 `LOCAL-DEMO.md`。
+旧 Dify Cloud 的 0.7.0 导出在 Dify 1.9.1 导入器中会进入 pending；本次保留所需的九个基础节点并使用 0.4.0 格式，重新在 Cloud 导入测试。**没有声称本机完成了 Dify 1.9.1 的整套自部署验收**；实际测试环境和结果见 [REVISION-20261109.md](REVISION-20261109.md)。修订不能代替赛事最终评分，也不能证明上次未知原因的失败一定由版本导致。
 
-## 技术分工
+- [验收对照](ACCEPTANCE.md)：第三、第四部分材料。
+- [完整试玩样例](TESTING.md)：初始条件、操作顺序、输入、预期和重置方式。
+- `workflow_code/` 与 `grudge-shop.yml`：实际节点源码和唯一需导入的 DSL，`check_dsl.py` 会检查二者一致。
+- `gateway.py`、`requirements.txt`、`run_local.py`、`configure_dsl.py`：后端及从空环境启动的工具。
+- `evidence/`：真实记忆读写、Dify 运行和本次修订的证据；2026-11-08 的材料是历史记录，旧依赖清单在 `evidence/legacy-requirements-windows-20261108.txt`，不要用它安装当前版本。
 
-```text
-玩家输入 → JSON编码 → HTTP召回 → 检查召回 → LLM乌老板
-  → JSON编码本轮记录 → HTTP写入 → 检查写入凭据 → 回复
-                       ↓
-                 标准库网关 → PowerContext HTTP API → 官方SQLite持久化
-```
+## 从空环境安装
 
-Dify 承担输入处理、模型调用、HTTP 编排和输出。PowerContext 实际保存玩家行动与虚构回复，并通过 PreparedContext 全文召回提供后续互动的历史。关闭 Dify 内置对话记忆，避免把会话上下文误当作跨会话持久记忆。
+需要 Python **3.12**（本次实测）、互联网下载依赖，以及一个可以在 Dify 中调用的中文聊天模型。PowerContext 使用官方 SQLite 持久化，不是应用自行存储历史。网关与启动/配置脚本只依赖 Python 标准库。
 
-本作品选择 **Dify + PowerContext**，不声称使用 seekdb。PowerContext 官方默认 SQLite 是其存储后端，应用不维护第二份历史存储。显式写入及 FTS 召回无需配置 PowerContext 的模型、Embedding 或 Rerank。
-
-## 环境及安装
-
-建议 Linux x86_64 或 macOS；Windows 为 PowerContext 官方实验性支持，本交付已在 Windows、Python 3.11.1 环境执行真实记忆闭环。需要 Python 3.11+、Git、互联网下载依赖；一个可在 Dify 调用的聊天模型。网关自身无第三方依赖。准备独立目录后：
-
-```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-```
-
-PowerContext 固定源码提交：`ed8902b234c4111b6f54e66694806430e25be3a9`。`requirements-lock-windows.txt` 如存在，是本次实测依赖版本清单；跨平台优先按 requirements.txt 安装。内存和 CPU 未做容量基准，先预留 2GB 内存、2GB 可用磁盘用于小规模试玩，按实际监控调整。
-
-## 启动：本地或自部署 Dify
-
-终端一（在本项目目录，保持运行）：
-
-```bash
-export POWERCONTEXT_HOME="$PWD/pc-data"
-powercontext server run --host 127.0.0.1 --port 8000 --no-env-file
-```
-
-SQLite 模式使用默认 `all` role，不要改为 `--role api`。首次启动等待 `/health/live` 正常后再继续。不需要启用遥测或自动推理。
-
-终端二：
-
-```bash
-source .venv/bin/activate
-export POWERCONTEXT_URL=http://127.0.0.1:8000
-export GATEWAY_TOKEN='替换为自行保管的随机长密钥'
-export GAME_NAMESPACE=grudge-shop-v1
-python gateway.py
-```
-
-环境示例在 `.env.example`，网关不会自动读取该文件，请显式导出变量。只有 PowerContext 启用 Bearer 鉴权时才设置 `POWERCONTEXT_TOKEN`。这两个 token 用途不同。
-
-Windows PowerShell 对应启动方式：
+在本目录执行，Windows PowerShell：
 
 ```powershell
-.venv\Scripts\Activate.ps1
-$env:POWERCONTEXT_HOME="$PWD/pc-data"
-powercontext server run --host 127.0.0.1 --port 8000 --no-env-file
-# 另开同目录终端并激活环境
-$env:POWERCONTEXT_URL='http://127.0.0.1:8000'
-$env:GATEWAY_TOKEN='替换为自行保管的随机长密钥'
-python gateway.py
+py -3.12 -m venv .venv
+.venv/Scripts/python.exe -m pip install -r requirements.txt
+.venv/Scripts/python.exe run_local.py
 ```
 
-## Dify 导入与配置
+Linux/macOS：
 
-1. 使用 Dify Cloud（本次实际验证环境，2026-11-08），需要可工作的代码执行环境和 HTTP Request 节点。云端未在此界面公开服务构建版本，交付以实际导出的 DSL 0.7.0 与锁定模型插件为准。旧版自部署 Dify 需自行验证导入兼容性，不列为本次验收环境。
-2. 在工作室“导入 DSL 文件”选择 `grudge-shop.yml`，或在已有 Chatflow 的菜单中先备份再导入。只导入这一份文件，无知识库、素材或初始化记忆需要导入。
-3. 在“乌老板即兴营业”节点选择已配置的聊天模型。DSL 默认为 `langgenius/openai/openai` 的 `gpt-4o-mini`，使用官方 OpenAI 模型供应商插件 **1.1.0**，安装来源 https://marketplace.dify.ai/plugins/langgenius/openai ，以及有效模型凭据/试用额度。导入 DSL 时检查依赖安装，或者在“插件”中从 Marketplace 安装 OpenAI 1.1.0，然后在“模型供应商”中配置自己的凭据，再回到模型节点选择 gpt-4o-mini。精确插件标识及摘要记录在 `dify-plugin-lock.json`，DSL 也已包含相同依赖声明。也可手动换成已配置的其他中文聊天模型，不要将凭据写入 DSL。
-4. 设置环境变量 `GATEWAY_URL`（网关根地址，末尾无斜杠）和 secret 类型的 `GATEWAY_TOKEN`。token 与网关启动环境完全一致。HTTP 两个节点会自动引用这两个变量。
-5. Dify 云端必须使用公网可达的有效 HTTPS 地址。`127.0.0.1` 指向 Dify 服务器本身，不能用来访问作者电脑。自部署 Dify 的容器也要使用容器实际可达的宿主/内网网关地址，并按 Dify 官方 SSRF 代理策略配置可访问目标。
-6. 先用预览执行 TESTING.md；全部通过后才发布 Web 应用，保留 Dify 节点执行记录。不要把导入成功等同于运行验收成功。
-
-无需自定义插件，也无需安装娱乐游戏 DSL。模型节点只是供应商插件的常规调用。
-
-## 长期云端网关部署（可选）
-
-在你控制的服务器按以上步骤启动 PowerContext 与网关，两者仅监听服务器 loopback。使用已有 HTTPS 反向代理仅代理网关端口 8765；PowerContext 8000 端口无需暴露公网。网关校验 Bearer token。下面为已有证书的 Nginx 配置片段，替换域名、证书路径后集成到你的站点：
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name game.example.com;
-    ssl_certificate /path/to/fullchain.pem;
-    ssl_certificate_key /path/to/privkey.pem;
-    client_max_body_size 20k;
-    location / {
-        proxy_pass http://127.0.0.1:8765;
-        proxy_read_timeout 40s;
-    }
-}
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python run_local.py
 ```
 
-生产部署应由服务管理器保持两个进程运行，持久化并备份 `POWERCONTEXT_HOME`。网关同时根据召回的玩家实际行动判定轻量结局，写入最终结局后由 Dify 校验并输出。结局识别使用明确关键词（如历史中的“道歉/对不起/补偿”和本轮的“我补回/我归还/整理好货架/诚实宣传”），不是通用的自然语言行为验证器。网关是单实例小规模体验实现，未做速率限制和容量测试，不提供并发同玩家的严格轮次顺序；不要对写入设置自动重试。公网代理应限制流量，保持 token 私密。
+本轮新建虚拟环境从 PyPI 安装；`python -m pip check` 应无依赖冲突。无需 Git 源码安装、编译 PowerContext 或预置作者数据库。此题未提供离线依赖镜像，首次安装需要联网。
 
-## 数据与边界
+启动脚本依次等待 PowerContext 和网关真正就绪，默认各最多 120 秒。提前退出、超时或运行期间服务退出，均报错并清理本次启动的进程。端口被占用时会拒绝启动，不会停止或复用其他服务；可用 `--pc-port 18100 --gateway-port 18765` 指定新端口。`Ctrl+C` 停止这两个自有进程树。
 
-玩家标识只取 `sys.user_id`，不让模型或用户文本决定 scope。网关用固定游戏 namespace 和玩家 ID 的哈希生成稳定幂等 scope key。它是数据分区映射，不是最终用户身份验证系统；网关 token 只给受信任的 Dify 服务使用。Dify Web 应用通常基于终端用户身份/浏览器维持 ID；换浏览器、清理身份或 API 调用时更改 `user` 会得到新玩家，并不承诺不同设备自动认出同一人。
+默认目录 `.runtime/` 包含官方持久化数据、诊断日志、`connection.json` 和已配置 DSL，已由 `.gitignore` 排除。**保留此目录才能在重启后继续同一玩家的历史。** 使用 `--state-dir` 指定新的空目录可创建独立世界，旧目录不会被删除。密钥由脚本随机生成，保存到私有本地文件，不在终端或仓库中输出。
 
-只保存游戏行动与虚构回复。历史作为不可信引用传给模型，不授予工具权限。FTS 查询使用固定锚词“杂货铺”，每条记录均含该锚词；准备上下文限制 6000 字节，长对局早期内容可能被截断，不声称无限记忆或语义检索。单轮行动不超过1200字、记忆不超过8000 UTF-8字节。模型输出过长或服务不可用会明确失败，不用内存假数据降级冒充成功。
+## 连接 Dify Cloud
+
+1. 保持 `run_local.py` 运行。默认仅监听本机：PowerContext 8000、网关 8765。
+2. 在自己的服务器提供 HTTPS 网关反向代理；临时测试也可按 [LOCAL-DEMO.md](LOCAL-DEMO.md) 使用 Cloudflare Quick Tunnel。只代理网关，不能把原始 PowerContext 暴露到公网。Dify Cloud 的 `localhost` 指向云端自身，无法访问你电脑。
+3. 新终端运行（以下用 Windows 解释器为例，POSIX 换为 `.venv/bin/python`）：
+
+```powershell
+.venv/Scripts/python.exe configure_dsl.py --gateway-url https://你的可达网关
+```
+
+4. 在 Dify 工作室“创建 → 导入应用”中选择生成的 **`.runtime/grudge-shop-configured.yml`**。该文件从提交模板生成，已绑定网关地址和 secret token，只供导入你自己的 Dify 工作区；不要上传到 GitHub 或发送给别人。也可导入仓库中的脱敏模板，手动设置 `GATEWAY_URL` 和 secret 类型的 `GATEWAY_TOKEN`，后者必须与本地连接文件一致。
+5. 在“乌老板即兴营业”节点选择已配置的模型。默认官方 OpenAI 插件 **1.1.0**、`gpt-4o-mini`，安装来源 https://marketplace.dify.ai/plugins/langgenius/openai ，精确标识见 `dify-plugin-lock.json`。模型需要自己的有效供应商凭据或 Dify 额度；凭据不包含在提交材料中。也可绑定自己的中文聊天模型，并记录替代型号。
+6. 预览运行 [TESTING.md](TESTING.md) 的连续样例，再发布应用。Dify 内置对话记忆保持关闭。导入成功、单节点成功或健康端口返回成功都不能代替完整试玩。
+
+如使用自部署 Dify，网关地址必须从 Dify 的 API/worker/SSRF 代理容器实际可达，并遵守该部署的 SSRF 网络策略；容器里的 `127.0.0.1` 不是宿主机。配置工具不会修改 Dify 的网络安全策略。
+
+## 自测与实际记忆证据
+
+保持服务运行，在另一个本目录终端执行：
+
+```powershell
+.venv/Scripts/python.exe check_dsl.py
+.venv/Scripts/python.exe -m unittest discover -p "test_*.py" -v
+.venv/Scripts/python.exe verify.py --connection .runtime/connection.json
+```
+
+跨公网验证时，可给最后一条命令加 `--url https://你的可达网关`；证据可用 `--output 路径.json` 另存。该脚本用随机测试玩家，不需要作者旧数据，检查真实写入的 ArtifactRef、召回内容、重复输入、玩家隔离和错误 token 返回 401。脚本台词是明确标注的固定测试夹具；Dify 模型互动须另外按 TESTING.md 验证。
+
+`GET /health` 只有在网关能连接真实 PowerContext 时才返回 200；服务不可达返回 503。`POST /recall`、`POST /remember` 要求 Bearer token，实际保存玩家输入与模型回复。服务错误不会当作空历史；无效写入凭据不会生成已保存的假成功回复。HTTP 写入不自动重试。
+
+## 数据语义与边界
+
+`sys.user_id` → 固定游戏 namespace 与玩家 ID 哈希 → PowerContext 幂等 Scope。模型或玩家文本不能决定其他玩家分区。该映射是数据分区，不是跨设备身份认证；更换浏览器身份或 API 的 user 会得到新玩家。
+
+三件奇物设定在已交付提示词里，无素材下载或知识库初始化。只保存虚构游戏行动与回复，历史作为不可信引用输入模型。FTS 固定锚词“杂货铺”，上下文 6000 字节；长对局早期内容可能截断。输入最多 1200 字，单轮记忆最多 8000 UTF-8 字节。结局按明确关键词结算，不是通用行为判断器。同玩家并发无强轮次顺序，写入无 exactly-once 保证，尚未做容量基准。
+
+小规模试玩建议先预留 2GB 内存和 2GB 磁盘，按实际监控调整；不是经压测得出的最低配置。长期在线应在自己的服务器保持进程运行并备份状态目录；作者电脑和临时隧道不是评审复现的必要条件。
 
 ## 来源与许可
 
-原创游戏设定、提示词、网关、DSL 和验证脚本；未复制第三方游戏或素材。代码按本目录 MIT LICENSE 发布。
+原创游戏设定、提示词、网关、DSL 和验证脚本；未复制第三方游戏或素材。本目录代码使用 MIT LICENSE。PowerContext 与 Dify 为外部依赖，遵循各自许可证。
 
-- 赛题：https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/lhfslihtnnb8yqh6
-- 比赛基线：https://github.com/oceanbase/powercontext/tree/2026-competition-ecosystem （基线提交 `d647275c308e09b7b623f322a26f5c4e85734fb0`）
-- PowerContext 接口：https://powercontext.oceanbase.io/zh/docs/develop/api-quickstart/ （源码提交优先于后续变更的在线文档）
+- 题面：https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/lhfslihtnnb8yqh6
+- 比赛代码基线：https://github.com/oceanbase/powercontext/tree/2026-competition-ecosystem ，提交 `d647275c308e09b7b623f322a26f5c4e85734fb0`。
+- PowerContext：https://github.com/oceanbase/powercontext ，运行依赖固定 PyPI 1.5.0；接口与该发行版核对。
 - Dify HTTP：https://docs.dify.ai/en/cloud/use-dify/nodes/http-request
-- Dify 1.9.1：https://github.com/langgenius/dify/releases/tag/1.9.1
-
-PowerContext 与 Dify 均为外部依赖，遵循其自身许可。本目录不包含这两个项目源码。
+- 导入兼容性参考：https://github.com/langgenius/dify/blob/1.9.1/api/services/app_dsl_service.py

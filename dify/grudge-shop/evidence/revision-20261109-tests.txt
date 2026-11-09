@@ -1,0 +1,18 @@
+test_blacklist_needs_repeated_pranks (test_game_rules.GameRulesTest.test_blacklist_needs_repeated_pranks) ... ok
+test_npc_dialogue_does_not_count_as_player_apology (test_game_rules.GameRulesTest.test_npc_dialogue_does_not_count_as_player_apology) ... ok
+test_reward_requires_prior_apology_and_current_help (test_game_rules.GameRulesTest.test_reward_requires_prior_apology_and_current_help) ... ok
+test_unavailable_or_truncated_history_does_not_invent_progress (test_game_rules.GameRulesTest.test_unavailable_or_truncated_history_does_not_invent_progress) ... ok
+test_bad_upstream_json_is_contract_failure (test_gateway_contract.ContractTest.test_bad_upstream_json_is_contract_failure) ... ok
+test_export_binds_connection_without_mutating_template (test_gateway_contract.ContractTest.test_export_binds_connection_without_mutating_template) ... ok
+test_failed_config_write_preserves_previous_valid_connection (test_gateway_contract.ContractTest.test_failed_config_write_preserves_previous_valid_connection) ... ok
+test_invalid_write_evidence_is_rejected (test_gateway_contract.ContractTest.test_invalid_write_evidence_is_rejected) ... ok
+test_malformed_history_does_not_crash_game_rules (test_gateway_contract.ContractTest.test_malformed_history_does_not_crash_game_rules) ... ok
+test_real_context_states_are_preserved (test_gateway_contract.ContractTest.test_real_context_states_are_preserved) ... ok
+test_startup_child_failure_is_reported_without_waiting (test_gateway_contract.ContractTest.test_startup_child_failure_is_reported_without_waiting) ... ok
+test_unavailable_memory_is_not_presented_as_first_visit (test_gateway_contract.ContractTest.test_unavailable_memory_is_not_presented_as_first_visit) ... ok
+test_valid_artifact_ref_is_not_replaced (test_gateway_contract.ContractTest.test_valid_artifact_ref_is_not_replaced) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.023s
+
+OK
